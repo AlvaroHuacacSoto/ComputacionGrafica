@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    canvas {
+      border: 2px solid;
+      background-color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="test" width="600" height="600">
+    <script>
+      var canvas = document.getElementById("test");
+      var ctx = canvas.getContext("2d");
+      crearRectangulo(0, 0, 20, 20, "red")
+
+      function crearRectangulo(x, y, ancho, alto, color) {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.rect(x, y, ancho, alto);
+        ctx.stroke();
+      }
+
+      function crearCirculo(x, y, radio, color) {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.arc(x, y, radio, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+
+      function crearLinea(xInicio, yInicio, xFin, yFin, color) {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.moveTo(xInicio, yInicio);
+        ctx.lineTo(xFin, yFin);
+        ctx.stroke();
+      }
+
+      function crearTexto(contenido, x, y, color, fuente = "20") {
+        ctx.font = fuente + "px Arial";
+        ctx.fillStyle = color;
+        ctx.fillText(contenido, x, y);
+      }
+    </script>
+
+  </canvas>
+</body>
+
+
+
+
+
+</html>
