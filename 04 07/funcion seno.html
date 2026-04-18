@@ -11,7 +11,9 @@
   </style>
 </head>
 
-<body><canvas id="myCanvas" width="500" height="500" style="border: 1px solid black;"></canvas>
+<body>
+  <h2>Alvaro huacac Soto</h2>
+  <canvas id="myCanvas" width="1000" height="500" style="border: 1px solid black;"></canvas>
 
   <script>
     var canvas = document.getElementById("myCanvas");
@@ -19,8 +21,8 @@
 
     // variables necesarias para el graficos
     var xstart = 0; // punto de inicio en el eje x
-    var xend = 500; // punto de fin en el eje y
-    var step = 0.1; // paso para el incremento de x
+    var xend = 1000; // punto de fin en el eje y
+    var step = 8; // paso para el incremento de x
     var time = 0; // variable para animar el grafico
 
     // funcion para dibujar el grafico
@@ -52,10 +54,23 @@
       time += 0.1; // incrementar el tiempo para animar la onda
       drawGraph(); // dibujar el gráfico actualizado
       requestAnimationFrame(animate); // llama a la funcion de animación
+
+
+
+      ctx.beginPath();
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 1;
+
+      ctx.moveTo(0, canvas.height / 2);
+      ctx.lineTo(canvas.width, canvas.height / 2);
+
+      ctx.moveTo(canvas.width / 2, 0);
+      ctx.lineTo(canvas.width / 2, canvas.height);
+      ctx.stroke();
     }
 
     //inicia la animación
-    animate(); 
+    animate();
   </script>
 </body>
 
