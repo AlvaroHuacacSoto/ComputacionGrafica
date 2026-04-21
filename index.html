@@ -3,40 +3,87 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Repo Explorer | ThinkPad Edition</title>
   <style>
+    /* Estilos Base - Estética ThinkPad / Monospace */
     body {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
       background-color: #000;
       color: #fff;
-      padding: 30px;
+      padding: 20px;
+      margin: 0;
+      line-height: 1.5;
     }
 
     .container {
       max-width: 900px;
-      margin: auto;
-      border: 1px solid #333;
-      padding: 20px;
+      margin: 20px auto;
+      border: 1px solid #1a1a1a;
+      padding: 25px;
       border-radius: 4px;
+      background-color: #050505;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Breadcrumb (Navegación de ruta) */
+    .breadcrumb {
+      margin-bottom: 30px;
+      font-size: 0.95em;
+      border-left: 3px solid #750202;
+      /* Rojo ThinkPad */
+      padding-left: 15px;
+      color: #888;
+    }
+
+    .breadcrumb span {
+      cursor: pointer;
+      color: #750202;
+      transition: 0.2s;
+    }
+
+    .breadcrumb span:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    /* Elementos del Explorador */
+    #explorer {
+      display: flex;
+      flex-direction: column;
     }
 
     .item {
-      padding: 12px;
-      border-bottom: 1px solid #1a1a1a;
+      padding: 12px 15px;
+      border-bottom: 1px solid #111;
       display: flex;
       align-items: center;
       transition: 0.2s;
+      text-decoration: none;
+      color: inherit;
     }
 
     .item:hover {
       background-color: #111;
     }
 
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    /* Estilos de Iconos y Texto */
+    .icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 15px;
+      flex-shrink: 0;
+      /* Evita que el icono se encoja */
+    }
+
     .directory {
-      color: #750202;
+      color: #fff;
       font-weight: bold;
       cursor: pointer;
-      text-transform: uppercase;
     }
 
     .file {
@@ -49,19 +96,32 @@
       color: #fff;
     }
 
-    .breadcrumb {
-      margin-bottom: 25px;
-      font-size: 0.9em;
-      border-left: 3px solid #750202;
-      padding-left: 15px;
+    /* Icono "Regresar" (Rojo) */
+    .up-dir {
+      color: #750202;
+      cursor: pointer;
     }
 
+    .up-dir .icon {
+      fill: #750202;
+    }
+
+    /* Mensajes de Error */
     .error-msg {
-      color: #ff0000;
-      background: #200;
-      padding: 15px;
+      color: #ff4444;
+      background: rgba(117, 2, 2, 0.1);
+      padding: 20px;
       border: 1px solid #750202;
       margin-top: 20px;
+      border-radius: 2px;
+      font-size: 0.9em;
+    }
+
+    .loading {
+      color: #666;
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
     }
   </style>
 </head>
@@ -70,19 +130,38 @@
 
   <div class="container">
     <div id="breadcrumb" class="breadcrumb"></div>
-    <div id="explorer">Iniciando sistema...</div>
+    <div id="explorer">
+      <div class="loading">Iniciando sistema...</div>
+    </div>
   </div>
 
   <script>
+    // Configuración exacta para tu repositorio (Público, rama 'master')
     const USER = 'AlvaroHuacacSoto';
     const REPO = 'ComputacionGrafica';
     const BRANCH = 'master';
+
+    // Definición de Iconos SVG (Lineales, color heredado)
+    const icons = {
+      // Icono de Carpeta (Folder)
+      dir: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
+      // Icono de Archivo (File)
+      file: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>`,
+      // Icono de Regresar (Corner Up Left)
+      up: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"></polyline><path d="M20 4v7a4 4 0 0 1-4 4H4"></path></svg>`
+    };
 
     async function loadRepo(path = "") {
       const explorer = document.getElementById('explorer');
       const breadcrumb = document.getElementById('breadcrumb');
 
-      breadcrumb.innerHTML = `<span onclick="loadRepo('')" style="cursor:pointer;color:#750202">root</span> / ${path}`;
+      explorer.innerHTML = `<div class="loading">Cargando directorio...</div>`;
+
+      // Breadcrumb: root / carpeta1 / carpeta2
+      breadcrumb.innerHTML = `<span onclick="loadRepo('')">root</span>` +
+        (path ? ' / ' + path.split('/').map((p, i, arr) =>
+          `<span onclick="loadRepo('${arr.slice(0, i + 1).join('/')}')">${p}</span>`
+        ).join(' / ') : '');
 
       try {
         const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${path}?ref=${BRANCH}`;
@@ -90,46 +169,60 @@
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.error("Detalle del error:", errorData);
+          console.error("Error API:", errorData);
           throw new Error(errorData.message);
         }
 
         const data = await response.json();
-        explorer.innerHTML = "";
+        explorer.innerHTML = ""; // Limpiar cargando
 
+        // Botón Regresar (si no estamos en root)
         if (path !== "") {
           const upDir = path.split('/').slice(0, -1).join('/');
-          explorer.innerHTML += `<div class="item directory" onclick="loadRepo('${upDir}')">.. [REGRESAR]</div>`;
+          const div = document.createElement('div');
+          div.className = 'item up-dir directory';
+          div.onclick = () => loadRepo(upDir);
+          div.innerHTML = `${icons.up}<span>..</span>`;
+          explorer.append(div);
         }
 
-        // Separar carpetas de archivos
+        // Ordenar: Carpetas primero, luego archivos
         data.sort((a, b) => (b.type === 'dir') - (a.type === 'dir'));
 
         data.forEach(item => {
           const div = document.createElement('div');
           div.className = 'item';
 
-          if (item.type === 'dir') {
-            div.innerHTML = `<span class="directory" onclick="loadRepo('${item.path}')">DIR_ ${item.name}</span>`;
-          } else {
-            // Evitamos listar el propio index.html si quieres un look más limpio
-            if (item.name === 'index.html') return;
+          // No listar el propio index.html para limpieza
+          if (item.name === 'index.html') return;
 
+          if (item.type === 'dir') {
+            div.classList.add('directory');
+            div.onclick = () => loadRepo(item.path);
+            div.innerHTML = `${icons.dir}<span>${item.name}</span>`;
+          } else {
+            // Enlace directo a la versión renderizada de Pages
             const rawUrl = `https://${USER}.github.io/${REPO}/${item.path}`;
-            div.innerHTML = `<a class="file" href="${rawUrl}" target="_blank">FILE_ ${item.name}</a>`;
+            div.innerHTML = `<a class="file" href="${rawUrl}" target="_blank">${icons.file}${item.name}</a>`;
           }
           explorer.append(div);
         });
 
+        // Si el directorio está vacío (sin contar index.html)
+        if (explorer.innerHTML === "") {
+          explorer.innerHTML = `<div class="loading">[ Directorio vacío ]</div>`;
+        }
+
       } catch (err) {
         explorer.innerHTML = `
                 <div class="error-msg">
-                    <strong>SYSTEM ERROR:</strong> ${err.message}<br><br>
-                    <small>Causas probables: Repo privado, nombre de repo incorrecto o límite de API excedido.</small>
+                    <strong>CRITICAL ERROR:</strong> ${err.message}<br><br>
+                    <small>Verifica la consola (F12) para detalles técnicos. Asegúrate de que el repo es público.</small>
                 </div>`;
       }
     }
 
+    // Iniciar explorador
     loadRepo();
   </script>
 </body>
