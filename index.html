@@ -139,13 +139,19 @@
     const USER = 'AlvaroHuacacSoto';
     const REPO = 'ComputacionGrafica';
     const BRANCH = 'master';
-    const CACHE_TIME = 300000; // 5 minutos en milisegundos
+    const CACHE_TIME = 300000; // 5 minutos
 
     const icons = {
       dir: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
       file: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>`,
       up: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"></polyline><path d="M20 4v7a4 4 0 0 1-4 4H4"></path></svg>`
     };
+
+    // Función para forzar la limpieza de la caché
+    function clearCacheAndReload(path) {
+      localStorage.removeItem(`repo_cache_${path}`);
+      loadRepo(path);
+    }
 
     async function loadRepo(path = "") {
       const explorer = document.getElementById('explorer');
@@ -154,12 +160,13 @@
 
       explorer.innerHTML = `<div class="loading">Sincronizando...</div>`;
 
+      // Construcción de la ruta con el botón [ REFRESH ] alineado a la derecha
       breadcrumb.innerHTML = `<span onclick="loadRepo('')">root</span>` +
         (path ? ' / ' + path.split('/').map((p, i, arr) =>
           `<span onclick="loadRepo('${arr.slice(0, i + 1).join('/')}')">${p}</span>`
-        ).join(' / ') : '');
+        ).join(' / ') : '') +
+        `<span style="float:right; color:#555; cursor:pointer;" onclick="clearCacheAndReload('${path}')" title="Forzar sincronización con GitHub">[ REFRESH ]</span>`;
 
-      // 1. Intentar cargar desde caché local
       const cachedData = localStorage.getItem(cacheKey);
       if (cachedData) {
         const {data, timestamp} = JSON.parse(cachedData);
@@ -185,7 +192,6 @@
 
         const data = await response.json();
 
-        // Guardar en caché
         localStorage.setItem(cacheKey, JSON.stringify({
           data: data,
           timestamp: Date.now()
@@ -197,7 +203,7 @@
         explorer.innerHTML = `
                 <div class="error-msg">
                     <strong>CRITICAL ERROR:</strong> ${err.message}<br><br>
-                    <small>El límite de la API se ha agotado. Espera un momento o revisa la consola.</small>
+                    <small>Límite de API excedido. Usa el caché o revisa la consola.</small>
                 </div>`;
       }
     }
@@ -215,7 +221,12 @@
         explorer.append(div);
       }
 
-      data.sort((a, b) => (b.type === 'dir') - (a.type === 'dir'));
+      // Ordenamiento estricto: Carpetas primero, luego orden alfabético
+      data.sort((a, b) => {
+        if (a.type === 'dir' && b.type !== 'dir') return -1;
+        if (a.type !== 'dir' && b.type === 'dir') return 1;
+        return a.name.localeCompare(b.name);
+      });
 
       data.forEach(item => {
         if (item.name === 'index.html') return;
@@ -232,11 +243,14 @@
         }
         explorer.append(div);
       });
+
+      if (explorer.innerHTML === "") {
+        explorer.innerHTML = `<div class="loading">[ Directorio vacío ]</div>`;
+      }
     }
 
     loadRepo();
   </script>
-
 </body>
 
 </html>
