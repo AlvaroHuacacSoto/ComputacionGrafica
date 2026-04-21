@@ -3,26 +3,58 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
-  <link href="css/style.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>objetos 3D</title>
 </head>
 
 <body>
-  <canvas id="myCanvas" width="1000" height="500" style="border: 1px solid black;"></canvas>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
-    var canvas = document.getElementById("myCanvas");
-    var ctx = canvas.getContext("2d");
+    // CREAR LA ESCENA
+    const scene = new THREE.Scene();
+    // CREAR UNA CAMARA
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // CREAR UN RENDERIZADOR
+    const renderer = new THREE.WebGLRenderer();
 
-    ctx.beginPath();
-    ctx.strokeStyle = "blue";
-    ctx.moveTo(255, 255);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-    ctx.lineTo(255, 255);
-    ctx.stroke();
+    // CREAR EL CUBO
+
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshNormalMaterial();
+    const cubo = new THREE.Mesh(geometry, material);
+    scene.add(cubo);
+
+    // POSICIONAR LA CAMARA
+    camera.position.z = 5;
+
+    // variables para controlar la posición del cubo
+
+    let direccion = 0.02;
+
+    // ANIMACIÓN 
+    function animate() {
+      requestAnimationFrame(animate);
+      // MOVER EL CUBO
+      cubo.position.x += direccion;
+      // CAMBIAR LA DIRECCIÓN SI EL CUBO LLEGA A LOS LÍMITE DERECHO 
+      if (cubo.position.x > 2) {
+        direccion = -0.02;
+      }
+      // CAMBIAR LA DIRECCIÓN SI EL CUBO LLEGA A LOS LÍMITE IZQUIERDO 
+      if (cubo.position.x < -2) {
+        direccion = 0.02;
+      }
+
+      //Dibujar la escena
+      renderer.render(scene, camera);
+    }
+    animate();
 
   </script>
+
 
 </body>
 
