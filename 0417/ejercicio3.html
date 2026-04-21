@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejercicio 3: Curva Dinámica Coseno</title>
+</head>
+
+<body>
+  <h2>Curva Dinámica de la Función Coseno</h2>
+  <canvas id="canvasCoseno" width="800" height="400" style="border:2px solid #333; background-color: #fafafa;"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvasCoseno");
+    const ctx = canvas.getContext("2d");
+
+    let tiempo = 0;
+
+    function dibujarCoseno() {
+      // limpiar
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // dibujar curva 
+      ctx.beginPath();
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 3;
+
+      // calcular Coseno
+      for (let x = 0; x < canvas.width; x++) {
+        // y = cos(x)
+        let y = Math.cos(x * 0.05 + tiempo);
+
+        // calcular la posicion actual
+        let visualY = (canvas.height / 2) - (y * 100);
+
+        if (x === 0) {
+          ctx.moveTo(x, visualY);
+        } else {
+          ctx.lineTo(x, visualY);
+        }
+      }
+
+      ctx.stroke();
+      tiempo += 0.05;
+
+      requestAnimationFrame(dibujarCoseno);
+    }
+
+    // Iniciar la animación
+    dibujarCoseno();
+  </script>
+</body>
+
+</html>

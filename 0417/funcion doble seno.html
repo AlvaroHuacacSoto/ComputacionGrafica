@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doble Función Seno Desfasada</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="myCanvas" width="1000" height="500" style="border: 1px solid black;"></canvas>
+
+  <script>
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+    var xstart = 0;
+    var xend = 1000;
+    var step = 5;
+    var time = 0;
+    var desfase = Math.PI / 2;
+
+    function drawAxes() {
+      ctx.beginPath();
+      ctx.strokeStyle = '#ccc';
+      ctx.lineWidth = 1;
+      // X
+      ctx.moveTo(0, canvas.height / 2);
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      // Y
+      ctx.moveTo(canvas.width / 2, 0);
+      ctx.lineTo(canvas.width / 2, canvas.height);
+      ctx.stroke();
+    }
+
+    function drawGraph() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawAxes();
+
+      // funcion azul
+      ctx.beginPath();
+      ctx.strokeStyle = 'blue';
+      ctx.lineWidth = 2;
+      for (var x = xstart; x <= xend; x += step) {
+        var y1 = Math.sin(x * 0.02 + time);
+        var visualY1 = canvas.height / 2 - y1 * 100;
+
+        if (x === xstart) ctx.moveTo(x, visualY1);
+        else ctx.lineTo(x, visualY1);
+      }
+      ctx.stroke();
+
+      // funsion roja
+      ctx.beginPath();
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      for (var x = xstart; x <= xend; x += step) {
+        // añadir el desfase
+        var y2 = Math.sin(x * 0.02 + time + desfase);
+        var visualY2 = canvas.height / 2 - y2 * 100;
+
+        if (x === xstart) ctx.moveTo(x, visualY2);
+        else ctx.lineTo(x, visualY2);
+      }
+      ctx.stroke();
+    }
+
+    function animate() {
+      time += 0.05;
+      drawGraph();
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+
+</html>

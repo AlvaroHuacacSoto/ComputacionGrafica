@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráfico de Barras Dinámico</title>
+</head>
+
+<body>
+  <h2>Gráfico de Barras Dinámico</h2>
+  <canvas id="myCanvas" width="500" height="500" style="border:4px solid black;"></canvas>
+
+  <script>
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+    var colores = ["red", "blue", "green", "orange", "purple"];
+    var width = 50;
+
+    function dibujarGrafico() {
+      //limpiar
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      var x = 50;
+      ctx.font = "14px 'JetBrainsMono Nerd Font', monospace";
+      ctx.textAlign = "center";
+
+      for (var i = 0; i < colores.length; i++) {
+        //generar valores
+        var valorAleatorio = Math.floor(Math.random() * 400) + 50;
+        var alturaVisual = valorAleatorio * 0.85;
+        var etiqueta = valorAleatorio.toString();
+
+        //bibujarbarra
+        ctx.beginPath();
+        ctx.rect(x, 500 - alturaVisual, width, alturaVisual);
+        ctx.fillStyle = colores[i];
+        ctx.fill();
+        ctx.stroke();
+
+        //dibujar letra
+        ctx.fillStyle = "black";
+        ctx.fillText(etiqueta, x + (width / 2), 500 - alturaVisual - 10);
+
+        x += width + 20;
+      }
+    }
+
+    setInterval(dibujarGrafico, 1000);
+    dibujarGrafico();
+  </script>
+</body>
+
+</html>
