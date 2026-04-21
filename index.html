@@ -147,44 +147,58 @@
       up: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"></polyline><path d="M20 4v7a4 4 0 0 1-4 4H4"></path></svg>`
     };
 
-    // Función para forzar la limpieza de la caché
+    // Función SUPERIOR de limpieza
     function clearCacheAndReload(path) {
-      localStorage.removeItem(`repo_cache_${path}`);
-      loadRepo(path);
+      // Borramos todo el caché de este repo en tu navegador
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('repo_cache_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      // Recargamos forzando la petición en vivo (true)
+      loadRepo(path, true);
     }
 
-    async function loadRepo(path = "") {
+    async function loadRepo(path = "", forceRefresh = false) {
       const explorer = document.getElementById('explorer');
       const breadcrumb = document.getElementById('breadcrumb');
       const cacheKey = `repo_cache_${path}`;
 
-      explorer.innerHTML = `<div class="loading">Sincronizando...</div>`;
+      explorer.innerHTML = `<div class="loading">Sincronizando con GitHub...</div>`;
 
-      // Construcción de la ruta con el botón [ REFRESH ] alineado a la derecha
       breadcrumb.innerHTML = `<span onclick="loadRepo('')">root</span>` +
         (path ? ' / ' + path.split('/').map((p, i, arr) =>
           `<span onclick="loadRepo('${arr.slice(0, i + 1).join('/')}')">${p}</span>`
         ).join(' / ') : '') +
-        `<span style="float:right; color:#555; cursor:pointer;" onclick="clearCacheAndReload('${path}')" title="Forzar sincronización con GitHub">[ REFRESH ]</span>`;
+        `<span style="float:right; color:#750202; cursor:pointer; font-weight:bold;" onclick="clearCacheAndReload('${path}')" title="Forzar lectura en vivo">[ REFRESH ]</span>`;
 
-      const cachedData = localStorage.getItem(cacheKey);
-      if (cachedData) {
-        const {data, timestamp} = JSON.parse(cachedData);
-        if (Date.now() - timestamp < CACHE_TIME) {
-          renderData(data, path);
-          return;
+      // Solo usamos caché si NO estamos forzando el refresh
+      if (!forceRefresh) {
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+          const {data, timestamp} = JSON.parse(cachedData);
+          if (Date.now() - timestamp < CACHE_TIME) {
+            renderData(data, path);
+            return;
+          }
         }
       }
 
       try {
-        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${path}?ref=${BRANCH}`;
-        const response = await fetch(url);
+        // CACHE BUSTER: Agregamos el tiempo actual a la URL si forzamos el refresh. 
+        // Esto evita que GitHub nos devuelva un JSON viejo.
+        const timeStampQuery = forceRefresh ? `&t=${new Date().getTime()}` : '';
+        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${path}?ref=${BRANCH}${timeStampQuery}`;
+
+        // Le decimos al navegador que no use su caché interno
+        const fetchOptions = forceRefresh ? {cache: 'no-store'} : {};
+        const response = await fetch(url, fetchOptions);
 
         if (!response.ok) {
+          const cachedData = localStorage.getItem(cacheKey);
           if (response.status === 403 && cachedData) {
-            console.warn("Rate limit excedido. Usando caché antigua.");
-            const {data} = JSON.parse(cachedData);
-            renderData(data, path);
+            console.warn("Límite excedido. Usando datos guardados.");
+            renderData(JSON.parse(cachedData).data, path);
             return;
           }
           throw new Error((await response.json()).message);
@@ -202,8 +216,8 @@
       } catch (err) {
         explorer.innerHTML = `
                 <div class="error-msg">
-                    <strong>CRITICAL ERROR:</strong> ${err.message}<br><br>
-                    <small>Límite de API excedido. Usa el caché o revisa la consola.</small>
+                    <strong>SYSTEM ERROR:</strong> ${err.message}<br><br>
+                    <small>Límite de API o error de conexión.</small>
                 </div>`;
       }
     }
@@ -221,7 +235,7 @@
         explorer.append(div);
       }
 
-      // Ordenamiento estricto: Carpetas primero, luego orden alfabético
+      // Ordenamiento estricto: Carpetas siempre arriba
       data.sort((a, b) => {
         if (a.type === 'dir' && b.type !== 'dir') return -1;
         if (a.type !== 'dir' && b.type === 'dir') return 1;
