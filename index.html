@@ -3,60 +3,65 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Repo Explorer</title>
+  <title>Repo Explorer | ThinkPad Edition</title>
   <style>
     body {
-      font-family: sans-serif;
-      background-color: #0d1117;
-      color: #c9d1d9;
-      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      background-color: #000;
+      color: #fff;
+      padding: 30px;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
+      border: 1px solid #333;
+      padding: 20px;
+      border-radius: 4px;
     }
 
     .item {
-      padding: 10px;
-      border-bottom: 1px solid #30363d;
+      padding: 12px;
+      border-bottom: 1px solid #1a1a1a;
       display: flex;
       align-items: center;
+      transition: 0.2s;
     }
 
     .item:hover {
-      background-color: #161b22;
+      background-color: #111;
     }
 
     .directory {
+      color: #750202;
       font-weight: bold;
-      color: #58a6ff;
       cursor: pointer;
+      text-transform: uppercase;
     }
 
     .file {
-      color: #8b949e;
+      color: #aaa;
       text-decoration: none;
+      flex-grow: 1;
+    }
+
+    .file:hover {
+      color: #fff;
     }
 
     .breadcrumb {
-      margin-bottom: 20px;
-      color: #8b949e;
+      margin-bottom: 25px;
+      font-size: 0.9em;
+      border-left: 3px solid #750202;
+      padding-left: 15px;
     }
 
-    .breadcrumb span {
-      cursor: pointer;
-      color: #58a6ff;
-    }
-
-    button {
-      background: #238636;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 6px;
-      cursor: pointer;
+    .error-msg {
+      color: #ff0000;
+      background: #200;
+      padding: 15px;
+      border: 1px solid #750202;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -64,43 +69,40 @@
 <body>
 
   <div class="container">
-    <h2>Explorador de Repositorio</h2>
-    <div id="breadcrumb" class="breadcrumb">/</div>
-    <div id="explorer">Cargando archivos...</div>
+    <div id="breadcrumb" class="breadcrumb"></div>
+    <div id="explorer">Iniciando sistema...</div>
   </div>
 
   <script>
-    // Configuración exacta para tu repositorio
     const USER = 'AlvaroHuacacSoto';
     const REPO = 'ComputacionGrafica';
     const BRANCH = 'master';
 
-    let currentPath = "";
-
     async function loadRepo(path = "") {
       const explorer = document.getElementById('explorer');
       const breadcrumb = document.getElementById('breadcrumb');
-      currentPath = path;
 
       breadcrumb.innerHTML = `<span onclick="loadRepo('')" style="cursor:pointer;color:#750202">root</span> / ${path}`;
 
       try {
-        // Usamos la API de GitHub para listar contenidos
-        const response = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${path}?ref=${BRANCH}`);
+        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${path}?ref=${BRANCH}`;
+        const response = await fetch(url);
 
-        if (!response.ok) throw new Error("No se pudo conectar con la API");
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Detalle del error:", errorData);
+          throw new Error(errorData.message);
+        }
 
         const data = await response.json();
         explorer.innerHTML = "";
 
         if (path !== "") {
-          const parts = path.split('/');
-          parts.pop();
-          const upDir = parts.join('/');
-          explorer.innerHTML += `<div class="item directory" onclick="loadRepo('${upDir}')">.. (Regresar)</div>`;
+          const upDir = path.split('/').slice(0, -1).join('/');
+          explorer.innerHTML += `<div class="item directory" onclick="loadRepo('${upDir}')">.. [REGRESAR]</div>`;
         }
 
-        // Ordenar: primero carpetas, luego archivos
+        // Separar carpetas de archivos
         data.sort((a, b) => (b.type === 'dir') - (a.type === 'dir'));
 
         data.forEach(item => {
@@ -108,23 +110,28 @@
           div.className = 'item';
 
           if (item.type === 'dir') {
-            div.innerHTML = `<span class="directory" onclick="loadRepo('${item.path}')">📁 ${item.name}</span>`;
+            div.innerHTML = `<span class="directory" onclick="loadRepo('${item.path}')">DIR_ ${item.name}</span>`;
           } else {
-            // Genera el enlace directo a la versión de GitHub Pages
-            const url = `https://${USER.github.io}/${REPO}/${item.path}`;
-            div.innerHTML = `<a class="file" href="${url}" target="_blank">📄 ${item.name}</a>`;
+            // Evitamos listar el propio index.html si quieres un look más limpio
+            if (item.name === 'index.html') return;
+
+            const rawUrl = `https://${USER}.github.io/${REPO}/${item.path}`;
+            div.innerHTML = `<a class="file" href="${rawUrl}" target="_blank">FILE_ ${item.name}</a>`;
           }
           explorer.append(div);
         });
-      } catch (error) {
-        explorer.innerHTML = `<div style="color:#750202">Error: No se encontró el repo o se excedió el límite de la API.</div>`;
-        console.error(error);
+
+      } catch (err) {
+        explorer.innerHTML = `
+                <div class="error-msg">
+                    <strong>SYSTEM ERROR:</strong> ${err.message}<br><br>
+                    <small>Causas probables: Repo privado, nombre de repo incorrecto o límite de API excedido.</small>
+                </div>`;
       }
     }
 
     loadRepo();
   </script>
-
 </body>
 
 </html>
