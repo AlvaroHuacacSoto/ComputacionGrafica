@@ -136,95 +136,107 @@
   </div>
 
   <script>
-    // Configuración exacta para tu repositorio (Público, rama 'master')
     const USER = 'AlvaroHuacacSoto';
     const REPO = 'ComputacionGrafica';
     const BRANCH = 'master';
+    const CACHE_TIME = 300000; // 5 minutos en milisegundos
 
-    // Definición de Iconos SVG (Lineales, color heredado)
     const icons = {
-      // Icono de Carpeta (Folder)
       dir: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
-      // Icono de Archivo (File)
       file: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>`,
-      // Icono de Regresar (Corner Up Left)
       up: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"></polyline><path d="M20 4v7a4 4 0 0 1-4 4H4"></path></svg>`
     };
 
     async function loadRepo(path = "") {
       const explorer = document.getElementById('explorer');
       const breadcrumb = document.getElementById('breadcrumb');
+      const cacheKey = `repo_cache_${path}`;
 
-      explorer.innerHTML = `<div class="loading">Cargando directorio...</div>`;
+      explorer.innerHTML = `<div class="loading">Sincronizando...</div>`;
 
-      // Breadcrumb: root / carpeta1 / carpeta2
       breadcrumb.innerHTML = `<span onclick="loadRepo('')">root</span>` +
         (path ? ' / ' + path.split('/').map((p, i, arr) =>
           `<span onclick="loadRepo('${arr.slice(0, i + 1).join('/')}')">${p}</span>`
         ).join(' / ') : '');
+
+      // 1. Intentar cargar desde caché local
+      const cachedData = localStorage.getItem(cacheKey);
+      if (cachedData) {
+        const {data, timestamp} = JSON.parse(cachedData);
+        if (Date.now() - timestamp < CACHE_TIME) {
+          renderData(data, path);
+          return;
+        }
+      }
 
       try {
         const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${path}?ref=${BRANCH}`;
         const response = await fetch(url);
 
         if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error API:", errorData);
-          throw new Error(errorData.message);
+          if (response.status === 403 && cachedData) {
+            console.warn("Rate limit excedido. Usando caché antigua.");
+            const {data} = JSON.parse(cachedData);
+            renderData(data, path);
+            return;
+          }
+          throw new Error((await response.json()).message);
         }
 
         const data = await response.json();
-        explorer.innerHTML = ""; // Limpiar cargando
 
-        // Botón Regresar (si no estamos en root)
-        if (path !== "") {
-          const upDir = path.split('/').slice(0, -1).join('/');
-          const div = document.createElement('div');
-          div.className = 'item up-dir directory';
-          div.onclick = () => loadRepo(upDir);
-          div.innerHTML = `${icons.up}<span>..</span>`;
-          explorer.append(div);
-        }
+        // Guardar en caché
+        localStorage.setItem(cacheKey, JSON.stringify({
+          data: data,
+          timestamp: Date.now()
+        }));
 
-        // Ordenar: Carpetas primero, luego archivos
-        data.sort((a, b) => (b.type === 'dir') - (a.type === 'dir'));
-
-        data.forEach(item => {
-          const div = document.createElement('div');
-          div.className = 'item';
-
-          // No listar el propio index.html para limpieza
-          if (item.name === 'index.html') return;
-
-          if (item.type === 'dir') {
-            div.classList.add('directory');
-            div.onclick = () => loadRepo(item.path);
-            div.innerHTML = `${icons.dir}<span>${item.name}</span>`;
-          } else {
-            // Enlace directo a la versión renderizada de Pages
-            const rawUrl = `https://${USER}.github.io/${REPO}/${item.path}`;
-            div.innerHTML = `<a class="file" href="${rawUrl}" target="_blank">${icons.file}${item.name}</a>`;
-          }
-          explorer.append(div);
-        });
-
-        // Si el directorio está vacío (sin contar index.html)
-        if (explorer.innerHTML === "") {
-          explorer.innerHTML = `<div class="loading">[ Directorio vacío ]</div>`;
-        }
+        renderData(data, path);
 
       } catch (err) {
         explorer.innerHTML = `
                 <div class="error-msg">
                     <strong>CRITICAL ERROR:</strong> ${err.message}<br><br>
-                    <small>Verifica la consola (F12) para detalles técnicos. Asegúrate de que el repo es público.</small>
+                    <small>El límite de la API se ha agotado. Espera un momento o revisa la consola.</small>
                 </div>`;
       }
     }
 
-    // Iniciar explorador
+    function renderData(data, path) {
+      const explorer = document.getElementById('explorer');
+      explorer.innerHTML = "";
+
+      if (path !== "") {
+        const upDir = path.split('/').slice(0, -1).join('/');
+        const div = document.createElement('div');
+        div.className = 'item up-dir directory';
+        div.onclick = () => loadRepo(upDir);
+        div.innerHTML = `${icons.up}<span>..</span>`;
+        explorer.append(div);
+      }
+
+      data.sort((a, b) => (b.type === 'dir') - (a.type === 'dir'));
+
+      data.forEach(item => {
+        if (item.name === 'index.html') return;
+        const div = document.createElement('div');
+        div.className = 'item';
+
+        if (item.type === 'dir') {
+          div.classList.add('directory');
+          div.onclick = () => loadRepo(item.path);
+          div.innerHTML = `${icons.dir}<span>${item.name}</span>`;
+        } else {
+          const rawUrl = `https://${USER}.github.io/${REPO}/${item.path}`;
+          div.innerHTML = `<a class="file" href="${rawUrl}" target="_blank">${icons.file}${item.name}</a>`;
+        }
+        explorer.append(div);
+      });
+    }
+
     loadRepo();
   </script>
+
 </body>
 
 </html>
