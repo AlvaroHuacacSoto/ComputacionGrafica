@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <title></title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #20232a;
+    }
+
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px;
+      border-radius: 5px;
+      font-family: sans-serif;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="ui">
+    <strong>Controles de Rotación</strong><br>
+    activar o desactivar ejes:<br>
+    X Alternar rotacion x<br>
+    Y Alternar rotacion y<br>
+    R Resetear rotación
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+  <script>
+    // escena y camara
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 2;//colocar camara Z
+
+    const renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // crear cubo
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshNormalMaterial();
+    const cubo = new THREE.Mesh(geometry, material);
+    scene.add(cubo);
+
+    // Variables para el control de rotación
+    let rotarX = true;
+    let rotarY = true;
+
+    // rotacion
+    function animate() {
+      requestAnimationFrame(animate);
+      if (rotarX) cubo.rotation.x += 0.01;
+      if (rotarY) cubo.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+
+    // key event
+    window.addEventListener('keydown', (event) => {
+      const key = event.key.toLowerCase();
+      if (key === 'x') rotarX = !rotarX;
+      if (key === 'y') rotarY = !rotarY;
+      if (key === 'r') {
+        cubo.rotation.set(0, 0, 0);
+        rotarX = false;
+        rotarY = false;
+      }
+    });
+
+    animate();
+  </script>
+</body>
+
+</html>

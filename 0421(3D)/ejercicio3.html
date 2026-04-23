@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PROPUESTA 3: INTERFAZ ACTUALIZADA</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #1a1a1d;
+    }
+
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(236, 233, 233, 0.9);
+      padding: 15px;
+      border-radius: 8px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+      color: #000;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="ui">
+    WASD Mover objeto<br>
+    Q E rotacion y<br>
+    Z X Escalar objeto<br>
+    R Resetear rotación
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+  <script>
+    // crear escena
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1d);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    const renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // crear cubo
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshNormalMaterial();
+    const cubo = new THREE.Mesh(geometry, material);
+    scene.add(cubo);
+
+    // key event
+    window.addEventListener('keydown', (event) => {
+      const vel = 0.2;
+      const rotVel = 0.1;
+      const escVel = 0.1;
+
+      switch (event.key.toLowerCase()) {
+        // Traslación
+        case 'w': cubo.position.y += vel; break;
+        case 's': cubo.position.y -= vel; break;
+        case 'a': cubo.position.x -= vel; break;
+        case 'd': cubo.position.x += vel; break;
+        case 'W': cubo.position.y += vel; break;
+        case 'S': cubo.position.y -= vel; break;
+        case 'A': cubo.position.x -= vel; break;
+        case 'D': cubo.position.x += vel; break;
+
+
+        // Rotación
+        case 'q': cubo.rotation.y -= rotVel; break;
+        case 'e': cubo.rotation.y += rotVel; break;
+        case 'Q': cubo.rotation.y -= rotVel; break;
+        case 'E': cubo.rotation.y += rotVel; break;
+
+
+        // Escalado
+        case 'z':
+          cubo.scale.x += escVel;
+          cubo.scale.y += escVel;
+          cubo.scale.z += escVel;
+          break;
+        case 'x':
+          cubo.scale.x = Math.max(.1, cubo.scale.x - escVel);
+          cubo.scale.y = Math.max(0.1, cubo.scale.y - escVel);
+          cubo.scale.z = Math.max(0.1, cubo.scale.z - escVel);
+          break;
+
+        // Reset 
+        case 'r':
+          cubo.position.set(0, 0, 0);
+          cubo.rotation.set(0, 0, 0);
+          cubo.scale.set(1, 1, 1);
+          break;
+      }
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+
+    animate();
+  </script>
+</body>
+
+</html>
