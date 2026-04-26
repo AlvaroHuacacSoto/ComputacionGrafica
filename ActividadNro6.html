@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curvas Paramétricas y Mallas Poligonales</title>
+    <style>
+        /* Sincronizado con la estética ThinkPad de tu repositorio */
+        body {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 50px;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-left: 4px solid #750202;
+            padding-left: 20px;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        h2 {
+            color: #750202;
+            font-size: 1.8em;
+            margin-top: 60px;
+            border-bottom: 1px solid #1a1a1a;
+            padding-bottom: 10px;
+        }
+
+        p {
+            color: #aaa;
+            text-align: justify;
+        }
+
+        strong {
+            color: #fff;
+        }
+
+        /* Contenedores para futuros Canvas */
+        .canvas-placeholder {
+            width: 100%;
+            height: 400px;
+            background-color: #050505;
+            border: 2px dashed #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .canvas-placeholder span {
+            font-size: 5em;
+            color: #750202;
+            opacity: 0.3;
+            font-weight: bold;
+        }
+
+        .canvas-label {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.7em;
+            color: #555;
+        }
+
+        .theory-section {
+            margin-bottom: 40px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li::before {
+            content: "> ";
+            color: #750202;
+            font-weight: bold;
+        }
+
+        .code-snippet {
+            background-color: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9em;
+            margin: 20px 0;
+        }
+
+        footer {
+            margin-top: 80px;
+            border-top: 1px solid #1a1a1a;
+            padding-top: 20px;
+            color: #444;
+            font-size: 0.8em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Curvas Paramétricas y Mallas Poligonales</h1>
+            <p>Un análisis técnico sobre la representación geométrica en computación gráfica.</p>
+        </header>
+
+        <section class="theory-section">
+            <h2>I. Curvas Paramétricas</h2>
+            <p>
+                A diferencia de las funciones explícitas donde <strong>y</strong> depende de <strong>x</strong>, las curvas paramétricas expresan cada coordenada como una función de un parámetro independiente, generalmente denominado <strong>t</strong>. 
+                Esto permite representar figuras complejas y cerradas que no podrían definirse como funciones simples.
+            </p>
+            
+            <p>
+                En tu trabajo con el archivo <code>circulo.html</code>, el parámetro <strong>t</strong> actúa como el ángulo que recorre la circunferencia de 0 a 2π. En el caso de las animaciones como <code>funcion seno.html</code>, el parámetro se combina con una variable de tiempo para generar movimiento dinámico.
+            </p>
+
+            <div class="canvas-placeholder">
+                <span>C</span>
+                <div class="canvas-label">// Espacio reservado para simulación de Curva Paramétrica (2D)</div>
+            </div>
+
+            <p><strong>Conceptos Clave:</strong></p>
+            <ul>
+                <li><strong>Independencia:</strong> X(t) e Y(t) se calculan por separado.</li>
+                <li><strong>Continuidad:</strong> Permiten definir trayectorias suaves ideales para el movimiento de cámaras o trazado de fuentes tipográficas.</li>
+                <li><strong>Flexibilidad:</strong> Facilidad para rotar y escalar la figura manipulando solo las funciones base.</li>
+            </ul>
+        </section>
+
+        <section class="theory-section">
+            <h2>II. Mallas Poligonales</h2>
+            <p>
+                Una malla es la representación de una superficie mediante un conjunto de vértices, aristas y caras. Mientras que las curvas definen el "borde", las mallas definen el "volumen" y la "piel" de los objetos tridimensionales. 
+                Es el estándar en la industria para el renderizado de objetos en tiempo real, como los cubos presentes en tus ejercicios de <code>0421(3D)</code>.
+            </p>
+
+            <div class="canvas-placeholder">
+                <span>M</span>
+                <div class="canvas-label">// Espacio reservado para visualización de Malla Poligonal (3D)</div>
+            </div>
+
+            <p><strong>Estructura de una Malla:</strong></p>
+            <ul>
+                <li><strong>Vértices:</strong> Puntos en el espacio 3D (X, Y, Z).</li>
+                <li><strong>Aristas (Edges):</strong> Líneas que conectan dos vértices para formar el armazón.</li>
+                <li><strong>Caras (Faces):</strong> Superficies planas delimitadas por aristas. En Three.js, como en <code>3D_1.html</code>, se utilizan principalmente triángulos debido a su eficiencia de procesamiento.</li>
+            </ul>
+
+            <p>
+                La calidad de una malla depende de su <strong>densidad poligonal</strong>: a mayor número de polígonos, mayor detalle visual, pero también mayor coste de procesamiento para la GPU.
+            </p>
+        </section>
+
+        <section class="theory-section">
+            <h2>III. Intersección de Conceptos</h2>
+            <p>
+                En la práctica, ambos conceptos suelen trabajar juntos. Por ejemplo, una malla compleja puede ser generada mediante la extrusión de una curva paramétrica. 
+                Mientras las curvas ofrecen precisión matemática infinita, las mallas ofrecen la estructura
