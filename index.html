@@ -11,27 +11,45 @@
       font-family: 'JetBrains Mono', 'Courier New', monospace;
       background-color: #000;
       color: #fff;
-      padding: 20px;
       margin: 0;
       line-height: 1.5;
+      display: flex;
+      height: 100vh;
+      overflow: hidden; /* Evita el scroll en el body, se delega a los paneles */
     }
 
-    .container {
-      max-width: 900px;
-      margin: 20px auto;
-      border: 1px solid #1a1a1a;
-      padding: 25px;
-      border-radius: 4px;
+    /* Barra Lateral (Explorador) */
+    .sidebar {
+      width: 350px;
+      min-width: 250px;
       background-color: #050505;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      border-right: 1px solid #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Área de Visualización Principal */
+    .main-content {
+      flex: 1;
+      background-color: #000;
+      display: flex;
+    }
+
+    #viewer {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background-color: #fff; /* Fondo blanco por defecto para los HTML renderizados, ajustable según necesidad */
     }
 
     /* Breadcrumb (Navegación de ruta) */
     .breadcrumb {
-      margin-bottom: 30px;
-      font-size: 0.95em;
+      margin-bottom: 20px;
+      font-size: 0.9em;
       border-left: 3px solid #750202;
-      /* Rojo ThinkPad */
       padding-left: 15px;
       color: #888;
     }
@@ -54,7 +72,7 @@
     }
 
     .item {
-      padding: 12px 15px;
+      padding: 10px 10px;
       border-bottom: 1px solid #111;
       display: flex;
       align-items: center;
@@ -73,11 +91,10 @@
 
     /* Estilos de Iconos y Texto */
     .icon {
-      width: 20px;
-      height: 20px;
-      margin-right: 15px;
+      width: 18px;
+      height: 18px;
+      margin-right: 12px;
       flex-shrink: 0;
-      /* Evita que el icono se encoja */
     }
 
     .directory {
@@ -90,13 +107,15 @@
       color: #aaa;
       text-decoration: none;
       flex-grow: 1;
+      display: flex;
+      align-items: center;
     }
 
     .file:hover {
       color: #fff;
     }
 
-    /* Icono "Regresar" (Rojo) */
+    /* Icono "Regresar" */
     .up-dir {
       color: #750202;
       cursor: pointer;
@@ -106,15 +125,15 @@
       fill: #750202;
     }
 
-    /* Mensajes de Error */
+    /* Mensajes de Error y Carga */
     .error-msg {
       color: #ff4444;
       background: rgba(117, 2, 2, 0.1);
-      padding: 20px;
+      padding: 15px;
       border: 1px solid #750202;
-      margin-top: 20px;
+      margin-top: 15px;
       border-radius: 2px;
-      font-size: 0.9em;
+      font-size: 0.85em;
     }
 
     .loading {
@@ -122,24 +141,29 @@
       font-style: italic;
       text-align: center;
       padding: 20px;
+      font-size: 0.9em;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="container">
+  <div class="sidebar">
     <div id="breadcrumb" class="breadcrumb"></div>
     <div id="explorer">
       <div class="loading">Iniciando sistema...</div>
     </div>
   </div>
 
+  <div class="main-content">
+    <iframe id="viewer" name="viewer" src="about:blank" title="Visor de archivos"></iframe>
+  </div>
+
   <script>
     const USER = 'AlvaroHuacacSoto';
     const REPO = 'ComputacionGrafica';
     const BRANCH = 'master';
-    const CACHE_TIME = 300000; // 5 minutos
+    const CACHE_TIME = 300000;
 
     const icons = {
       dir: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
@@ -147,15 +171,12 @@
       up: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"></polyline><path d="M20 4v7a4 4 0 0 1-4 4H4"></path></svg>`
     };
 
-    // Función SUPERIOR de limpieza
     function clearCacheAndReload(path) {
-      // Borramos todo el caché de este repo en tu navegador
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('repo_cache_')) {
           localStorage.removeItem(key);
         }
       });
-      // Recargamos forzando la petición en vivo (true)
       loadRepo(path, true);
     }
 
@@ -170,9 +191,8 @@
         (path ? ' / ' + path.split('/').map((p, i, arr) =>
           `<span onclick="loadRepo('${arr.slice(0, i + 1).join('/')}')">${p}</span>`
         ).join(' / ') : '') +
-        `<span style="float:right; color:#750202; cursor:pointer; font-weight:bold;" onclick="clearCacheAndReload('${path}')" title="Forzar lectura en vivo">[ REFRESH ]</span>`;
+        `<span style="float:right; color:#750202; cursor:pointer; font-weight:bold;" onclick="clearCacheAndReload('${path}')" title="Forzar lectura en vivo">[ REF ]</span>`;
 
-      // Solo usamos caché si NO estamos forzando el refresh
       if (!forceRefresh) {
         const cachedData = localStorage.getItem(cacheKey);
         if (cachedData) {
@@ -185,12 +205,8 @@
       }
 
       try {
-        // CACHE BUSTER: Agregamos el tiempo actual a la URL si forzamos el refresh. 
-        // Esto evita que GitHub nos devuelva un JSON viejo.
         const timeStampQuery = forceRefresh ? `&t=${new Date().getTime()}` : '';
         const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${path}?ref=${BRANCH}${timeStampQuery}`;
-
-        // Le decimos al navegador que no use su caché interno
         const fetchOptions = forceRefresh ? {cache: 'no-store'} : {};
         const response = await fetch(url, fetchOptions);
 
@@ -235,7 +251,6 @@
         explorer.append(div);
       }
 
-      // Ordenamiento estricto: Carpetas siempre arriba
       data.sort((a, b) => {
         if (a.type === 'dir' && b.type !== 'dir') return -1;
         if (a.type !== 'dir' && b.type === 'dir') return 1;
@@ -253,7 +268,8 @@
           div.innerHTML = `${icons.dir}<span>${item.name}</span>`;
         } else {
           const rawUrl = `https://${USER}.github.io/${REPO}/${item.path}`;
-          div.innerHTML = `<a class="file" href="${rawUrl}" target="_blank">${icons.file}${item.name}</a>`;
+          // CAMBIO PRINCIPAL: target="viewer" envía el enlace al iframe
+          div.innerHTML = `<a class="file" href="${rawUrl}" target="viewer">${icons.file}${item.name}</a>`;
         }
         explorer.append(div);
       });
