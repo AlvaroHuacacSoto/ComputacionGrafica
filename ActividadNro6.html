@@ -864,13 +864,13 @@
         renderer.setSize(container3d.clientWidth, container3d.clientHeight);
         container3d.appendChild(renderer.domElement);
 
-        // configurar los controles del mouse pa que la rotacion sea suave pero sin zoom ni pan
+        //crear los controles del mause pero restrigir el mouse y bloquear el eje para que no pierda el encuadre
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.enableZoom = false; 
         controls.enablePan = false;
 
-        // aca empezamos con la revolucion (lathe) definiendo los puntos de la silueta lateral
+        //(lathe) definiendo los puntos de la silueta lateral
         const points = [];
         points.push(new THREE.Vector2(0, 0));       
         points.push(new THREE.Vector2(1.2, 0));     
@@ -878,28 +878,28 @@
         points.push(new THREE.Vector2(1.5, 2.5));   
         points.push(new THREE.Vector2(1.6, 2.8));   
 
-        // crear la geometria girando esos puntos 32 veces y ponerle el material rojo con brillo
+        // repetir los puntos para crear el circulo
         const latheGeometry = new THREE.LatheGeometry(points, 32);
         const materialTaza = new THREE.MeshPhongMaterial({ color: 0x750202, flatShading: false, side: THREE.DoubleSide, shininess: 80 });
         scene.add(new THREE.Mesh(latheGeometry, materialTaza));
 
-        // ahora el asa usando una curva de bezier para el camino (barrido)
+        //curva de bezier para el camino (barrido)
         const handlePath = new THREE.CubicBezierCurve3(new THREE.Vector3(1.4, 2.2, 0), new THREE.Vector3(2.5, 2.2, 0), new THREE.Vector3(2.5, 0.5, 0), new THREE.Vector3(1.2, 0.5, 0));
-        // crear el tubo siguiendo esa curva y añadirlo a la escena
+        //crear un tubo siguiendo la curva
         scene.add(new THREE.Mesh(new THREE.TubeGeometry(handlePath, 20, 0.15, 8, false), materialTaza));
 
-        // poner las luces para que se vea el 3d y los brillos (luz directa y ambiental)
+        //crear luz ambiental y directa
         scene.add(new THREE.DirectionalLight(0xffffff, 1.2).translateY(10).translateX(5));
         scene.add(new THREE.AmbientLight(0x404040, 1.5));
 
-        // funcion para animar y que se actualice el renderizado en cada frame
+        // actualizar cada frame
         function animate() {
             requestAnimationFrame(animate);
-            controls.update(); // actualizar la inercia del movimiento
-            renderer.render(scene, camera);
+            controls.update(); //actualizar al control del mause
+            renderer.render(scene, camera);//actualizar render(frame)
         }
 
-        // arreglar el tamaño del canvas si se cambia el tamaño de la ventana
+        // arreglar el tamaño del canvas cuando se cambie de tamaño
         window.addEventListener('resize', () => {
             if (!container3d) return;
             camera.aspect = container3d.clientWidth / container3d.clientHeight;
@@ -907,8 +907,9 @@
             renderer.setSize(container3d.clientWidth, container3d.clientHeight);
         });
 
-        // arrancar la animacion de una vez
-        animate();</script>
+        //iniciar
+        animate()
+        ;</script>
 
         <script>
         window.MathJax = {
