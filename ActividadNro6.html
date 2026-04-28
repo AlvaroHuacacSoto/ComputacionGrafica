@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curvas Paramétricas y Mallas Poligonales - Alvaro Huacac</title>
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Curvas Paramétricas y Mallas Poligonales - Alvaro Huacac</title>
+        <style>
         body {
             font-family: 'JetBrains Mono', 'Courier New', monospace;
             background-color: #000;
@@ -133,174 +133,500 @@
             display: flex;
             justify-content: space-between;
         }
-    </style>
-</head>
-<body><div class="container">
-    <header>
-        <h1>Curvas Paramétricas y Computacion Grafica</h1>
-        <p>Computacion Grafica</p>
-    </header>
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>Geometría y Computación Gráfica</h1>
+                <p>Estudio avanzado de representaciones paramétricas y síntesis de mallas tridimensionales.</p>
+            </header>
 
-    <section>
-        <h2>1. Curvas Paramétricas</h2>
-        
-        <h3>1.1. Fundamentación y Ventajas Operativas</h3>
-        <p>
-            En la computación gráfica, la representación paramétrica trasciende la limitación de las funciones explícitas al tratar cada coordenada como una función independiente de un parámetro común <strong>t</strong>. Esta metodología es la piedra angular para el diseño de interfaces, tipografías vectoriales y trayectorias de cámaras.
-        </p>
+            <section>
+                <h2>1. Curvas Paramétricas</h2>
 
-        <table style="width:100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9em; border: 1px solid #1a1a1a;">
-            <tr style="background-color: #050505; color: #750202;">
-                <th style="padding: 12px; border: 1px solid #1a1a1a; text-align: left;">Criterio</th>
-                <th style="padding: 12px; border: 1px solid #1a1a1a; text-align: left;">Representación Explícita $y=f(x)$</th>
-                <th style="padding: 12px; border: 1px solid #1a1a1a; text-align: left;">Representación Paramétrica $P(t)$</th>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;"><strong>Topología</strong></td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Limitada a funciones de valor único.</td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Permite curvas cerradas, bucles y espirales.</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;"><strong>Control</strong></td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Dependencia rígida de los ejes.</td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Independencia del sistema de coordenadas.</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;"><strong>Cálculo</strong></td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Complejo para pendientes verticales.</td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Natural para cualquier vector tangente.</td>
-            </tr>
-        </table>
+                <div id="foundations-section-1-1" style="margin-top: 20px; border: 1px solid #1a1a1a; padding: 20px; background-color: #020202;">
+                    <section>
+                        <h3 style="color: #750202; margin-top: 0; font-size: 1.4em;">1.1. Fundamentación y Ventajas Operativas</h3>
+                        <p style="text-align: justify; margin-bottom: 25px;">
+                            La representación paramétrica constituye el pilar fundamental del modelado geométrico moderno. A diferencia de las funciones explícitas tradicionales, esta metodología abstrae las coordenadas espaciales como variables dependientes de un parámetro independiente \( t \), permitiendo una libertad topológica total.
+                        </p>
 
-        <h3>1.2. Dinámica del Movimiento: Velocidad y Dirección</h3>
-        <p>
-            Al introducir <strong>t</strong> (tiempo/progreso), la curva deja de ser un trazo estático para convertirse en una trayectoria dinámica. A través del cálculo vectorial, extraemos información crítica:
-        </p>
-        <ul style="list-style-type: none; padding-left: 0;">
-            <li style="margin-bottom: 15px; padding-left: 15px; border-left: 2px solid #750202;">
-                <strong>Vector Posición $\vec{P}(t)$:</strong> Define el punto exacto en el espacio euclídeo para un valor dado de $t$.
-            </li>
-            <li style="margin-bottom: 15px; padding-left: 15px; border-left: 2px solid #750202;">
-                <strong>Vector Velocidad (Tangente) $\vec{P}'(t)$:</strong> La primera derivada nos indica la <strong>dirección</strong> instantánea y la <strong>rapidez</strong> (magnitud del vector).
-            </li>
-        </ul>
+                        <div style="background-color: #050505; border: 1px solid #1a1a1a; padding: 25px; margin-bottom: 30px; border-left: 4px solid #750202;">
+                            <h4 style="color: #fff; margin-top: 0; font-size: 1em; text-transform: uppercase; letter-spacing: 1px;">Definición Vectorial en \( \mathbb{R}^n \)</h4>
+                            <p style="font-size: 0.9em; color: #ccc;">
+                                Definimos una curva paramétrica como el conjunto de puntos trazados por un vector de posición \( \vec{P} \) que evoluciona dentro de un dominio \( [a, b] \):
+                            </p>
+                            <div style="text-align: center; margin: 20px 0;">
+                                \[ \vec{P}(t) = \begin{pmatrix} x(t) \\ y(t) \\ z(t) \end{pmatrix}, \quad \text{donde } a \leq t \leq b \]
+                            </div>
+                            <p style="font-size: 0.8em; color: #666; font-style: italic;">
+                                // Esta abstracción permite que cada componente espacial sea computado de forma independiente en la GPU.
+                            </p>
+                        </div>
 
-        <div class="control-panel">
-            <label>Control del Parámetro (t): <span id="t-val" style="color:#ffff">0.00</span></label>
-            <input type="range" id="t-slider" min="0" max="6.28" step="0.01" value="0">
+                        <h4 style="color: #fff; font-size: 1em; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Análisis de Metodologías de Representación</h4>
+                        <table style="width:100%; border-collapse: collapse; margin-bottom: 30px; font-size: 0.85em; border: 1px solid #1a1a1a; color: #ccc;">
+                            <tr style="background-color: #080808; color: #750202;">
+                                <th style="padding: 12px; border: 1px solid #1a1a1a; text-align: left;">Característica</th>
+                                <th style="padding: 12px; border: 1px solid #1a1a1a; text-align: left;">Explícita \( y = f(x) \)</th>
+                                <th style="padding: 12px; border: 1px solid #1a1a1a; text-align: left;">Paramétrica \( \vec{P}(t) \)</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;"><strong>Topología</strong></td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Univalente (No permite auto-intersección).</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Multivalente (Permite bucles y formas cerradas).</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;"><strong>Pendiente</strong></td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Indefinida en líneas verticales.</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Perfectamente definida mediante vectores tangentes.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;"><strong>Grado de Libertad</strong></td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Bajo; dependencia directa de ejes.</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Máximo; independiente del sistema de coordenadas.</td>
+                            </tr>
+                        </table>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; font-family: 'Courier New', monospace;">
+
+                            <div style="background-color: #050505; border: 1px solid #1a1a1a; padding: 15px; border-bottom: 2px solid #750202;">
+                                <strong style="color: #fff; font-size: 0.9em;">&#9881; Modularidad</strong>
+                                <p style="font-size: 0.8em; color: #888; margin-top: 8px;">Permite desacoplar el dibujo del tiempo de ejecución.</p>
+                            </div>
+
+                            <div style="background-color: #050505; border: 1px solid #1a1a1a; padding: 15px; border-bottom: 2px solid #750202;">
+                                <strong style="color: #fff; font-size: 0.9em;">&#10004; Suavidad</strong>
+                                <p style="font-size: 0.8em; color: #888; margin-top: 8px;">Base para algoritmos de Bezier y Splines.</p>
+                            </div>
+
+                            <div style="background-color: #050505; border: 1px solid #1a1a1a; padding: 15px; border-bottom: 2px solid #750202;">
+                                <strong style="color: #fff; font-size: 0.9em;">&#10145; Extensibilidad</strong>
+                                <p style="font-size: 0.8em; color: #888; margin-top: 8px;">Fácil escalado de 2D a entornos 3D complejos.</p>
+                            </div>
+
+                        </div>
+                    </section>
+                </div>
+                <div id="kinematics-section-1-2" style="margin-top: 40px; border: 1px solid #1a1a1a; padding: 20px; background-color: #020202;">
+                    <section>
+                        <h3 style="color: #750202; margin-top: 0; font-size: 1.4em;">1.2. Dinámica del Movimiento: Cinemática Vectorial</h3>
+                        <p style="text-align: justify; margin-bottom: 25px;">
+                            Al tratar al parámetro \( t \) como una variable temporal, la curva deja de ser un trazo estático para convertirse en una trayectoria dinámica. Esta abstracción nos permite calcular la posición, dirección y ritmo de un objeto en cada instante del renderizado, fundamentando las bases de la animación por computadora.
+                        </p>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; font-family: 'Courier New', monospace;">
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">&#8982;</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Estado de Posición \( \vec{P}(t) \)</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Define la ubicación exacta del punto en el espacio para cualquier valor de \( t \). Para una órbita circular centrada en \( (h, k) \):
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.85em; color: #888;">
+                                    \[ x(t) = r \cos(t) + h \]
+                                    \[ y(t) = r \sin(t) + k \]
+                                </div>
+                            </div>
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">&#10142;</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Velocidad y Rapidez</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    La derivada \( \vec{P}'(t) \) otorga la <strong>dirección</strong> (tangente) y la <strong>rapidez</strong> (magnitud) del movimiento.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.85em; color: #888;">
+                                    \[ \vec{v}(t) = \begin{pmatrix} x'(t) \\ y'(t) \end{pmatrix} \]
+                                    \[ \text{Rapidez} = \|\vec{v}(t)\| = \sqrt{(x')^2 + (y')^2} \]
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="control-panel" style="background-color: #050505; border: 1px solid #750202; padding: 20px; border-radius: 4px; margin-bottom: 25px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <label style="color: #fff; font-size: 0.9em; margin: 0;">MODULACIÓN DEL PARÁMETRO \( t \):</label>
+                                <span id="t-val" style="color:#750202; font-weight:bold; font-family: monospace; font-size: 1.2em;">0.00</span>
+                            </div>
+                            <input type="range" id="t-slider" min="0" max="6.28" step="0.01" value="0" style="width: 100%; accent-color: #750202;">
+                            <p style="font-size: 0.75em; color: #555; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;">
+                                // Desplace el controlador para observar la evolución de los vectores radiales y tangenciales en tiempo real.
+                            </p>
+                        </div>
+
+                        <div class="canvas-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div style="text-align: center;">
+                                <canvas id="cCirculo" width="400" height="400" style="background-color: #020202; border: 1px solid #1a1a1a; width: 100%;"></canvas>
+                                <div class="label-sys" style="margin-top: 10px; color: #444; font-size: 0.7em;">Órbita Circular: \( \|\vec{v}(t)\| = \text{constante} \)</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <canvas id="cOnda" width="400" height="400" style="background-color: #020202; border: 1px solid #1a1a1a; width: 100%;"></canvas>
+                                <div class="label-sys" style="margin-top: 10px; color: #444; font-size: 0.7em;">Onda Sinusoidal: \( y(t) = A \sin(\omega t + \phi) \)</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 30px; background-color: #050505; border-left: 3px solid #750202; padding: 20px;">
+                            <strong style="color: #fff; text-transform: uppercase; font-size: 0.85em; letter-spacing: 1px;">Análisis de Comportamiento:</strong>
+                            <p style="font-size: 0.9em; color: #888; margin-top: 10px; text-align: justify;">
+                                En el <strong>Círculo</strong>, el vector de posición mantiene una magnitud constante (radio), lo que resulta en una rotación pura. Por el contrario, en la <strong>Onda Sinusoidal</strong>, el vector varía tanto en magnitud como en dirección, ilustrando cómo la combinación de un avance lineal en \( x \) y una oscilación en \( y \) genera la trayectoria de la señal.
+                            </p>
+                        </div>
+
+                    </section>
+                </div>
+
+                <div id="continuity-section-1-3" style="margin-top: 40px; border: 1px solid #1a1a1a; padding: 20px; background-color: #020202;">
+                    <section>
+                        <h3 style="color: #750202; margin-top: 0; font-size: 1.4em;">1.3. Clasificación de Continuidad Geométrica y Paramétrica</h3>
+                        <p style="text-align: justify; margin-bottom: 25px;">
+                            En la computación gráfica y el diseño asistido por computadora (CAD), la unión de múltiples segmentos de curva debe cumplir con criterios de suavidad rigurosos. Esta transición se evalúa en el punto de intersección \( t_c \) de dos funciones vectoriales \( \vec{Q}(t) \) y \( \vec{R}(t) \).
+                        </p>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; font-family: 'Courier New', monospace;">
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">\( C^0 \)</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Continuidad de Posición</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Nivel de unión básica. Los segmentos comparten el mismo punto final, pero no necesariamente la dirección.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Condición:</strong><br>
+                                    \( \vec{Q}(t_c) = \vec{R}(t_c) \)<br>
+                                    <strong>Resultado:</strong> Unión con "quiebre" o arista.
+                                </div>
+                            </div>
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">\( C^1 \)</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Continuidad de Tangente</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Exige que la primera derivada sea idéntica, asegurando que la velocidad del trazo sea constante.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Condición:</strong><br>
+                                    \( \vec{Q}'(t_c) = \vec{R}'(t_c) \)<br>
+                                    <strong>Resultado:</strong> Transición suave al ojo humano.
+                                </div>
+                            </div>
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">\( C^2 \)</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Continuidad de Curvatura</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Asegura que la aceleración (segunda derivada) sea idéntica, vital para reflejos de luz realistas.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Condición:</strong><br>
+                                    \( \vec{Q}''(t_c) = \vec{R}''(t_c) \)<br>
+                                    <strong>Resultado:</strong> Suavidad matemática ininterrumpida.
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <h4 style="color: #fff; font-size: 1em; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Matriz de Casos de Uso</h4>
+                        <table style="width:100%; border-collapse: collapse; margin-bottom: 30px; font-size: 0.85em; border: 1px solid #1a1a1a; color: #ccc;">
+                            <tr style="background-color: #080808; color: #750202;">
+                                <th style="padding: 10px; border: 1px solid #1a1a1a;">Nivel</th>
+                                <th style="padding: 10px; border: 1px solid #1a1a1a;">Nombre Técnico</th>
+                                <th style="padding: 10px; border: 1px solid #1a1a1a;">Aplicación CG</th>
+                                <th style="padding: 10px; border: 1px solid #1a1a1a;">Percepción</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">\( C^0 \)</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Posicional</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Modelado Low-Poly</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Aristas vivas</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">\( C^1 \)</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Tangencial</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Animación de cámaras</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Movimiento fluido</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">\( C^2 \)</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Curvatura</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Diseño de superficies Clase A</td>
+                                <td style="padding: 10px; border: 1px solid #1a1a1a;">Reflejo perfecto</td>
+                            </tr>
+                        </table>
+
+                        <div style="background-color: #050505; border: 1px solid #1a1a1a; padding: 25px; border-left: 3px solid #750202;">
+                            <h4 style="color: #fff; margin-top: 0;">Diferenciación: Continuidad Geométrica (\( G^n \))</h4>
+                            <p style="font-size: 0.9em; text-align: justify; color: #888;">
+                                Mientras que la continuidad paramétrica (\( C^n \)) impone restricciones sobre la magnitud de los vectores, la <strong>Continuidad Geométrica</strong> (\( G^n \)) es más flexible. Permite que dos curvas tengan derivadas con magnitudes distintas pero con la misma dirección. En el modelado industrial de superficies curvas (como la carrocería de un vehículo), \( G^2 \) es el estándar mínimo aceptable para garantizar que los reflejos lumínicos no sufran distorsiones en las uniones.
+                            </p>
+                        </div>
+
+                    </section>
+                </div>
+            </section>
+
+
+            <section>
+                <h2>2. Mallas Poligonales</h2>
+
+                <div id="anatomy-section-2-1" style="margin-top: 40px; border: 1px solid #1a1a1a; padding: 20px; background-color: #020202;">
+                    <section>
+                        <h3 style="color: #750202; margin-top: 0; font-size: 1.4em;">2.1. Anatomía y Estructura de Datos de la Malla</h3>
+                        <p style="text-align: justify; margin-bottom: 25px;">
+                            Una malla poligonal se define formalmente como una colección de vértices \( V = \{v_1, v_2, ..., v_n\} \) en el espacio tridimensional \( \mathbb{R}^3 \). La eficiencia del renderizado moderno no solo depende de la geometría, sino de cómo organizamos estos datos para que la GPU los procese en paralelo mediante buffers especializados.
+                        </p>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; font-family: 'Courier New', monospace;">
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">&#9744;</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Vertex Buffer Object (VBO)</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Almacena la posición espacial de cada vértice \( P_i(x, y, z) \) y su correspondiente vector normal \( \vec{n}_i \).
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Datos Críticos:</strong><br>
+                                    - Coordenadas Cartesianas.<br>
+                                    - Vectores Normales de Vértice.<br>
+                                    - Coordenadas de Textura (UV).
+                                </div>
+                            </div>
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">&#9730;</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Index Buffer Object (IBO)</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Define la conectividad de la malla. Indica al hardware qué vértices del VBO forman cada cara triangular.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Optimización:</strong><br>
+                                    Evita la duplicación de datos y ahorra memoria de video al reutilizar índices de vértices compartidos.
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div style="background-color: #050505; border: 1px solid #1a1a1a; padding: 25px; margin-top: 20px;">
+                            <h4 style="color: #fff; margin-top: 0;">Cálculo de la Normal de Cara (\( \vec{n}_f \))</h4>
+                            <p style="font-size: 0.95em;">
+                                Para que la luz interactúe con la superficie, calculamos el vector perpendicular a cada triángulo mediante el producto vectorial de sus aristas unitarias:
+                            </p>
+                            <div style="text-align: center; margin: 20px 0;">
+                                \[ \vec{n}_f = \frac{(B-A) \times (C-A)}{\|(B-A) \times (C-A)\|} \]
+                            </div>
+                            <p style="font-size: 0.85em; color: #666; font-style: italic;">
+                                Donde \( A, B, C \) representan los tres vértices que componen la cara elemental.
+                            </p>
+                        </div>
+
+                        <div style="margin-top: 30px;">
+                            <strong style="color: #750202; text-transform: uppercase; font-size: 0.8em; letter-spacing: 1px;">Propiedades de la Unidad Atómica:</strong>
+                            <ul style="margin-top: 15px; columns: 2; color: #ccc; font-size: 0.9em; list-style-type: square;">
+                                <li style="margin-bottom: 10px;"><strong>Coplanaridad:</strong> Garantiza planos perfectos.</li>
+                                <li style="margin-bottom: 10px;"><strong>Rasterización:</strong> Eficiencia en el relleno de píxeles.</li>
+                                <li style="margin-bottom: 10px;"><strong>Simplicidad:</strong> Base del pipeline de la GPU.</li>
+                                <li style="margin-bottom: 10px;"><strong>Consistencia:</strong> Iluminación predecible.</li>
+                            </ul>
+                        </div>
+
+                    </section>
+                </div>
+
+                <div id="topology-section-2-2" style="margin-top: 40px; border: 1px solid #1a1a1a; padding: 20px; background-color: #020202;">
+                    <section>
+                        <h3 style="color: #750202; margin-top: 0; font-size: 1.4em;">2.2. Unión de Polígonos y Visualización de Topología</h3>
+                        <p style="text-align: justify; margin-bottom: 25px;">
+                            La unión de polígonos define el "esqueleto" o la estructura fundamental de un objeto tridimensional. A través de la conectividad de vértices, establecemos la topología de la malla, permitiendo que el motor gráfico interprete una superficie continua a partir de elementos discretos.
+                        </p>
+
+                        <div style="display: flex; gap: 20px; margin-bottom: 30px; font-family: 'Courier New', monospace;">
+
+                            <div style="flex: 1; border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">&#9711;</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Estructura Topológica</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Define cómo se comparten los vértices entre caras adyacentes para garantizar la integridad de la superficie.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Propiedad Crítica:</strong><br>
+                                    Evita "huecos" en la malla mediante el uso del <strong>Index Buffer</strong> para referenciar un mismo vértice en múltiples caras.
+                                </div>
+                            </div>
+
+                            <div style="flex: 1; border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">&#9691;</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Subdivisión de Caras</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    La fragmentación de una cara plana en subtriángulos permite un control más granular de la iluminación y deformación.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Cálculo de Área:</strong><br>
+                                    \[ \text{Area}_{\text{Total}} = \sum_{i=1}^{4} \text{Area}(\triangle_i) \]
+                                    Verifica la coplanaridad de los polígonos resultantes.
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="pyramid-3d-container"></div>
+
+                        <div style="background-color: #050505; padding: 15px; border-left: 3px solid #750202; margin: 20px 0;">
+                            <strong style="color: #fff; font-size: 0.9em;">Análisis de Datos de la Malla (Cubo Segmentado):</strong>
+                            <p style="font-size: 0.8em; color: #888; margin-top: 8px; font-family: 'Courier New', monospace;">
+                                &bull; Vértices: 14 (8 en esquinas + 6 en centros de cara)<br>
+                                &bull; Topología: Radial (4 triángulos convergiendo en cada centro)<br>
+                                &bull; Faces: 24 Triángulos independientes para visualización de normales.
+                            </p>
+                        </div>
+
+                    </section>
+                </div>
+
+                <div id="shading-models-section-2-3" style="margin-top: 40px; border: 1px solid #1a1a1a; padding: 20px; background-color: #020202;">
+                    <section>
+                        <h3 style="color: #750202; margin-top: 0; font-size: 1.4em;">2.3. Modelos de Sombreado y Reflexión</h3>
+                        <p style="text-align: justify; margin-bottom: 25px;">
+                            La apariencia final de una malla depende de cómo el motor gráfico procesa la iluminación en relación con la geometría. Basándonos en la <strong>Ley de Lambert</strong> para la reflexión difusa, el color de cada píxel se determina mediante la interacción de las normales y los vectores de luz.
+                        </p>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; font-family: 'Courier New', monospace;">
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">&#9635;</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Flat Shading</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Se asigna una única normal por cara. Todo el polígono recibe el mismo valor lumínico.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Lógica:</strong> \( C = \text{eval}(\vec{n}_f, \vec{L}) \)<br>
+                                    <strong>Resultado:</strong> Estilo facetado "Low-Poly".
+                                </div>
+                            </div>
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">&#9630;</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Gouraud Shading</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Calcula la luz en los vértices y realiza una interpolación bilineal de colores a través de la cara.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Lógica:</strong> \( C_p = \sum w_i C_i \)<br>
+                                    <strong>Resultado:</strong> Suavidad base, pero pierde brillos.
+                                </div>
+                            </div>
+
+                            <div style="border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.8em; color: #750202; margin-right: 15px;">&#10022;</div>
+                                    <strong style="color: #fff; font-size: 1.1em;">Phong Shading</strong>
+                                </div>
+                                <p style="font-size: 0.85em; margin-bottom: 15px; color: #ccc;">
+                                    Interpola las normales de los vértices por cada píxel (per-pixel shading) antes del cálculo lumínico.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.8em; color: #888;">
+                                    <strong>Lógica:</strong> \( \vec{n}_p = \text{interp}(\vec{n}_i) \)<br>
+                                    <strong>Resultado:</strong> Realismo con brillos especulares precisos.
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                </div>
+                <div id="procedural-modeling-section-2-4" style="margin-top: 40px; border: 1px solid #1a1a1a; padding: 20px; background-color: #020202;">
+                    <section>
+                        <h3 style="color: #750202; margin-top: 0; font-size: 1.4em;">2.4. Técnicas de Generación Procedimental de Superficies</h3>
+                        <p style="text-align: justify; margin-bottom: 25px;">
+                            El modelado avanzado de la taza no se basa en la creación manual de cada polígono. En su lugar, aplicamos algoritmos que automatizan la generación de la malla a partir de perfiles y trayectorias paramétricas, basándonos en los conceptos de curvas paramétricas. Esto permite obtener superficies suaves y optimizadas con una mínima entrada de datos.
+                        </p>
+
+                        <div style="display: flex; gap: 20px; margin-bottom: 30px; font-family: 'Courier New', monospace;">
+
+                            <div style="flex: 1; border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 2em; color: #750202; margin-right: 15px;">&#128391;</div>
+                                    <strong style="color: #fff; font-size: 1.2em;">Revolución (LatheGeometry)</strong>
+                                </div>
+                                <p style="font-size: 0.9em; margin-bottom: 15px;">
+                                    Giro de un perfil bidimensional (curva paramétrica con vértices) alrededor de un eje central. Ideal para generar cuerpos cilíndricos simétricos con curvatura suave.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.85em; color: #888;">
+                                    <strong>Parámetros Técnicos (Ejemplo):</strong><br>
+                                    - Eje de Revolución: Vertical (Y)<br>
+                                    - Ángulo Total (phiLength): \( 2\pi \)rad (360°)<br>
+                                    - Segmentos de Malla (phiSegments): 32
+                                </div>
+                            </div>
+
+                            <div style="flex: 1; border: 1px solid #1a1a1a; background-color: #050505; border-top: 3px solid #750202; padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 2em; color: #750202; margin-right: 15px;">&#10148;</div>
+                                    <strong style="color: #fff; font-size: 1.2em;">Barrido (TubeGeometry)</strong>
+                                </div>
+                                <p style="font-size: 0.9em; margin-bottom: 15px;">
+                                    Extrusión de una sección transversal circular o poligonal a lo largo de una trayectoria de curva en el espacio. Perfecto para estructuras asimétricas y orgánicas.
+                                </p>
+                                <div style="background-color: #020202; border: 1px dashed #333; padding: 10px; font-size: 0.85em; color: #888;">
+                                    <strong>Parámetros Técnicos (Ejemplo):</strong><br>
+                                    - Trayectoria: Curva de Bézier Cúbica<br>
+                                    - Radio del Tubo: 0.15 unidades<br>
+                                    - Segmentos de Tubo (tubularSegments): 20
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="cup-3d-container" style="width: 100%; height: 450px; background-color: #050505; border: 1px solid #1a1a1a; cursor: move; margin-bottom: 15px;"></div>
+                        <p style="font-size: 0.85em; text-align: center; color: #444; margin-top: 0;">// Fusión de técnicas Lathe y Sweep: El cuerpo de revolución gira 360°, el asa es una extrusión tubular.</p>
+
+                    </section>
+                </div>
+
+                <div id="cup-3d-container"></div>
+            </section>
+
+            <footer>
+                <div style="width: 100%; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+                    <div>COMPUTACIÓN GRÁFICA </div>
+                    <div>2026</div>
+
+                    <div style="flex-basis: 100%; text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #1a1a1a; font-size: 0.7em; color: #555; text-transform: uppercase; letter-spacing: 1px;">
+                        Copyright AlimMoXiao (Alvaro Huacac Soto) Todos los derechos reservados
+                    </div>
+                </div>
+            </footer>
         </div>
-
-        <div class="canvas-grid">
-            <div>
-                <canvas id="cCirculo" width="400" height="400"></canvas>
-                <div class="label-sys">Órbita Circular: Mantenimiento de Magnitud Constante</div>
-            </div>
-            <div>
-                <canvas id="cOnda" width="400" height="400"></canvas>
-                <div class="label-sys">Onda Sinusoidal: Variación de Dirección y Rapidez</div>
-            </div>
-        </div>
-
-        <h3>1.3. Clasificación según Continuidad</h3>
-        <p>
-            En el modelado geométrico, la suavidad de una unión entre curvas paramétricas se clasifica por su nivel de continuidad:
-        </p>
-        <ul style="margin-left: 20px;">
-            <li><strong>Continuidad $C^0$:</strong> Las curvas solo comparten el punto final (están unidas).</li>
-            <li><strong>Continuidad $C^1$:</strong> Las tangentes en el punto de unión son iguales (suavidad visual).</li>
-            <li><strong>Continuidad $C^2$:</strong> La curvatura (segunda derivada) es idéntica (suavidad profesional para automoción y aeronáutica).</li>
-        </ul>
-    </section>
-
-    <hr style="border: 0; height: 1px; background: #1a1a1a; margin: 60px 0;">
-
-    <section>
-        <h2>2. Mallas Poligonales</h2>
-
-        <h3>2.1. Anatomía y Estructura de Datos</h3>
-        <p>
-            Una malla es una colección de vértices, aristas y caras que definen la forma de un objeto 3D. La eficiencia en el renderizado moderno depende de cómo organizamos esta información en la memoria de la GPU (VRAM).
-        </p>
-
-        <div style="background-color: #050505; padding: 20px; border-radius: 4px; border: 1px solid #1a1a1a; margin: 20px 0;">
-            <h4 style="color: #fff; margin-top: 0;">Componentes Críticos:</h4>
-            <ol>
-                <li><strong>Vertex Buffer:</strong> Almacena coordenadas $(x, y, z)$ y normales.</li>
-                <li><strong>Index Buffer:</strong> Lista de punteros que evita la duplicación de vértices compartidos entre polígonos.</li>
-                <li><strong>Face Normals:</strong> Vectores perpendiculares que determinan la interacción con la luz.</li>
-            </ol>
-        </div>
-
-        <h3>2.2. Visualización de la Topología: El Cubo Segmentado</h3>
-        <p>
-            Para comprender la unión de polígonos, es vital visualizar la subdivisión de las caras. El modelo inferior muestra un cubo donde cada cara ha sido fragmentada en 4 triángulos. Esta técnica es el primer paso para algoritmos de **Tessellation** y **Subdivisión de Superficies**.
-        </p>
-
-        <div id="pyramid-3d-container"></div>
-
-        <h3>2.3. Modelos de Sombreado (Shading)</h3>
-        <p>
-            La apariencia de una malla depende de cómo el motor gráfico calcula el color entre los vértices:
-        </p>
-        
-        <table style="width:100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9em; border: 1px solid #1a1a1a;">
-            <tr style="background-color: #050505; color: #750202;">
-                <th style="padding: 10px; border: 1px solid #1a1a1a;">Modelo</th>
-                <th style="padding: 10px; border: 1px solid #1a1a1a;">Funcionamiento</th>
-                <th style="padding: 10px; border: 1px solid #1a1a1a;">Resultado Visual</th>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;"><strong>Flat Shading</strong></td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Un solo color por cara poligonal.</td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Facetado (estilo cubista).</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;"><strong>Phong Shading</strong></td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Interpolación de normales por píxel.</td>
-                <td style="padding: 10px; border: 1px solid #1a1a1a;">Superficie curva y brillos especulares.</td>
-            </tr>
-        </table>
-
-        <h3>2.4. Generación Procedimental: Lathe y Sweep</h3>
-        <p>
-            El modelado avanzado no construye cada triángulo manualmente, sino que utiliza algoritmos basados en las curvas paramétricas del capítulo anterior:
-        </p>
-        
-        <div style="display: flex; gap: 20px; margin: 25px 0;">
-            <div style="flex: 1; border-top: 3px solid #750202; background: #050505; padding: 15px;">
-                <strong>Revolución (Lathe)</strong>
-                <p style="font-size: 0.85em;">Ideal para objetos con simetría radial. Gira un perfil sobre un eje central.</p>
-            </div>
-            <div style="flex: 1; border-top: 3px solid #750202; background: #050505; padding: 15px;">
-                <strong>Barrido (Sweep/Tube)</strong>
-                <p style="font-size: 0.85em;">Crea formas tubulares siguiendo un camino libre en el espacio 3D.</p>
-            </div>
-        </div>
-
-        <div id="cup-3d-container"></div>
-        <p style="text-align: center; font-size: 0.8em; color: #444;">// Implementación de una taza mediante la fusión de técnicas Lathe y Sweep.</p>
-    </section>
-<footer>
-        <div style="width: 100%; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
-            <div>COMPUTACIÓN GRÁFICA</div>
-            <div>2026</div>
-            
-            <div style="flex-basis: 100%; text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #1a1a1a; font-size: 0.7em; color: #555; text-transform: uppercase; letter-spacing: 1px;">
-               © Copyright AlimMoXiao (Alvaro Huacac Soto) Todos los derechos reservados
-            </div>
-        </div>
-    </footer>
-</div>
-    <script type="importmap">
+        <script type="importmap">
         {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
+        "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
         }
-    </script>
+        }
+        </script>
 
-    <script id="script-seccion-1-2">
+        <script id="script-seccion-1-2">
         const slider = document.getElementById('t-slider');
         const tVal = document.getElementById('t-val');
         const ctxC = document.getElementById('cCirculo').getContext('2d');
@@ -323,7 +649,7 @@
         function update2D() {
             const t = parseFloat(slider.value);
             tVal.innerText = t.toFixed(2);
-            
+
             ctxC.clearRect(0, 0, 400, 400);
             const cx = 200, cy = 200, r = 120;
             ctxC.beginPath();
@@ -359,9 +685,9 @@
         }
         slider.addEventListener('input', update2D);
         update2D();
-    </script>
+        </script>
 
-    <script type="module" id="script-seccion-2-2">
+        <script type="module" id="script-seccion-2-2">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
@@ -431,9 +757,9 @@
             renderer.setSize(container3d.clientWidth, container3d.clientHeight);
         });
         animate();
-    </script>
+        </script>
 
-    <script type="module" id="script-seccion-2-4">
+        <script type="module" id="script-seccion-2-4">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
@@ -482,6 +808,19 @@
             renderer.setSize(container3d.clientWidth, container3d.clientHeight);
         });
         animate();
-    </script>
-</body>
+        </script>
+
+        <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
 </html>
