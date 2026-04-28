@@ -796,137 +796,118 @@
         addTriangle(corners[1], corners[0], faceCenters[5], palette[2]); 
         addTriangle(corners[0], corners[4], faceCenters[5], palette[3]);
 
-        // assignacion de atributos a la gpu
-        const geometry = new THREE.BufferGeometry();
+        // asignar los datos a la gpu
+        const geometry = new THREE.BufferGeometry(); // crear la geometria vacia
+        // pasar las posiciones de los puntos (VBO)
         geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+        // pasar los colores de cada punto 
         geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3));
+        // decirle como se conectan los puntos usando los indices (IBO)
         geometry.setIndex(indices);
-        geometry.computeVertexNormals(); //vectores perpenticulares de luz
+        // calcular automatico como rebota la luz en cada cara
+        geometry.computeVertexNormals(); 
 
-        //material y la malla
+        // configurar el material y crear el objeto
         const material = new THREE.MeshPhongMaterial({ 
-            vertexColors: true, 
-            flatShading: true, 
-            side: THREE.DoubleSide 
+            vertexColors: true, // usar los colores que definimos antes
+            flatShading: true,  // que se note el facetado de los triangulos
+            side: THREE.DoubleSide // que se vea por dentro y por fuera
         });
-        const cube = new THREE.Mesh(geometry, material);
+        const cube = new THREE.Mesh(geometry, material); // juntar geometria y material en la malla
         scene.add(cube);
 
-        // --- WIREFRAME (ESTRUCTURA DE ALAMBRE) ---
-        // Visualiza las aristas para resaltar la unión de polígonos
+    
+        // wireframe= esqueleto de lineas. para que cada triangulo este junto
         const wireframe = new THREE.LineSegments(
             new THREE.EdgesGeometry(geometry), 
             new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 })
         );
         scene.add(wireframe);
 
-        // --- ILUMINACIÓN ---
+        
+        // crear luz
         scene.add(new THREE.DirectionalLight(0xffffff, 1.2).translateY(5).translateX(5));
+        // otra luz de ambiente para que no se vea tan negro al otro lado
         scene.add(new THREE.AmbientLight(0x404040, 1.5));
 
-        // --- BUCLE DE ANIMACIÓN ---
+        // bucle para que se redibuje
         function animate() {
             requestAnimationFrame(animate);
-            controls.update(); // Actualiza la física de la cámara
-            renderer.render(scene, camera);
+            controls.update(); //actualizar la camara
+            renderer.render(scene, camera); // dibujar el nuevo frame
         }
 
-        // --- RESPONSIVIDAD ---
+        // ajustes por si se cambia de ventana
         window.addEventListener('resize', () => {
             camera.aspect = container3d.clientWidth / container3d.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(container3d.clientWidth, container3d.clientHeight);
         });
-
-        animate();
+            animate();
         </script>
 
-        <script type="module" id="script-seccion-2-4">// --- IMPORTACIÓN DE MÓDULOS ---
+        <script type="module" id="script-seccion-2-4">// importar lo necesario para que funcione three y los controles del mouse
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // --- CONFIGURACIÓN DEL ENTORNO (ESCENA) ---
+        // agarrar el div y crear la escena
         const container3d = document.getElementById('cup-3d-container'); 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x050505); // Fondo oscuro ThinkPad
+        scene.background = new THREE.Color(0x050505);
 
-        // --- CÁMARA: Proyección de Perspectiva ---
-        // FOV: 50°, Aspect Ratio basado en contenedor, Near: 0.1, Far: 1000
+        //camara
         const camera = new THREE.PerspectiveCamera(50, container3d.clientWidth / container3d.clientHeight, 0.1, 1000);
-        camera.position.set(5, 5, 8); // Posicionamiento espacial inicial
+        camera.position.set(5, 5, 8);
 
-        // --- RENDERIZADOR: Motor WebGL ---
-        const renderer = new THREE.WebGLRenderer({ antialias: true }); // Suavizado de bordes
+        //crear el renderizador al canva
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(container3d.clientWidth, container3d.clientHeight);
-        container3d.appendChild(renderer.domElement); // Inserción del Canvas en el DOM
+        container3d.appendChild(renderer.domElement);
 
-        // --- INTERACCIÓN: Control de Órbita ---
+        // configurar los controles del mouse pa que la rotacion sea suave pero sin zoom ni pan
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; // Rotación inercial (suave)
-        controls.enableZoom = false;   // Restricción para mantener consistencia visual
-        controls.enablePan = false;    // Restricción de desplazamiento lateral
+        controls.enableDamping = true;
+        controls.enableZoom = false; 
+        controls.enablePan = false;
 
-        // --- MODELADO PROCEDIMENTAL I: REVOLUCIÓN (LATHE) ---
-        // Definición del perfil 2D (silueta lateral de la taza)
+        // aca empezamos con la revolucion (lathe) definiendo los puntos de la silueta lateral
         const points = [];
-        points.push(new THREE.Vector2(0, 0));       // Base central
-        points.push(new THREE.Vector2(1.2, 0));     // Radio de base
-        points.push(new THREE.Vector2(1.5, 0.2));   // Curva inferior
-        points.push(new THREE.Vector2(1.5, 2.5));   // Cuerpo cilíndrico
-        points.push(new THREE.Vector2(1.6, 2.8));   // Labio superior
+        points.push(new THREE.Vector2(0, 0));       
+        points.push(new THREE.Vector2(1.2, 0));     
+        points.push(new THREE.Vector2(1.5, 0.2));   
+        points.push(new THREE.Vector2(1.5, 2.5));   
+        points.push(new THREE.Vector2(1.6, 2.8));   
 
-        // Generación de malla por rotación (32 segmentos para suavizado C1)
+        // crear la geometria girando esos puntos 32 veces y ponerle el material rojo con brillo
         const latheGeometry = new THREE.LatheGeometry(points, 32);
-        const materialTaza = new THREE.MeshPhongMaterial({ 
-            color: 0x750202,      // Rojo ThinkPad
-            flatShading: false,   // Sombreado suave (Phong)
-            side: THREE.DoubleSide, 
-            shininess: 80         // Reflejo especular
-        });
-        const cupBody = new THREE.Mesh(latheGeometry, materialTaza);
-        scene.add(cupBody);
+        const materialTaza = new THREE.MeshPhongMaterial({ color: 0x750202, flatShading: false, side: THREE.DoubleSide, shininess: 80 });
+        scene.add(new THREE.Mesh(latheGeometry, materialTaza));
 
-        // --- MODELADO PROCEDIMENTAL II: BARRIDO (SWEEP/TUBE) ---
-        // Trayectoria del asa mediante Curva de Bézier Cúbica
-        const handlePath = new THREE.CubicBezierCurve3(
-            new THREE.Vector3(1.4, 2.2, 0),  // Punto inicial
-            new THREE.Vector3(2.5, 2.2, 0),  // Control 1
-            new THREE.Vector3(2.5, 0.5, 0),  // Control 2
-            new THREE.Vector3(1.2, 0.5, 0)   // Punto final
-        );
+        // ahora el asa usando una curva de bezier para el camino (barrido)
+        const handlePath = new THREE.CubicBezierCurve3(new THREE.Vector3(1.4, 2.2, 0), new THREE.Vector3(2.5, 2.2, 0), new THREE.Vector3(2.5, 0.5, 0), new THREE.Vector3(1.2, 0.5, 0));
+        // crear el tubo siguiendo esa curva y añadirlo a la escena
+        scene.add(new THREE.Mesh(new THREE.TubeGeometry(handlePath, 20, 0.15, 8, false), materialTaza));
 
-        // Generación de geometría tubular a lo largo de la trayectoria
-        const tubeGeometry = new THREE.TubeGeometry(handlePath, 20, 0.15, 8, false);
-        const cupHandle = new THREE.Mesh(tubeGeometry, materialTaza);
-        scene.add(cupHandle);
-
-        // --- ILUMINACIÓN: Sistema de Luces ---
-        // Luz Direccional (simula una fuente puntual distante para sombras/brillos)
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        dirLight.position.set(5, 10, 5);
-        scene.add(dirLight);
-
-        // Luz Ambiental (iluminación base para evitar zonas de negro absoluto)
+        // poner las luces para que se vea el 3d y los brillos (luz directa y ambiental)
+        scene.add(new THREE.DirectionalLight(0xffffff, 1.2).translateY(10).translateX(5));
         scene.add(new THREE.AmbientLight(0x404040, 1.5));
 
-        // --- BUCLE DE ANIMACIÓN (RENDER LOOP) ---
+        // funcion para animar y que se actualice el renderizado en cada frame
         function animate() {
             requestAnimationFrame(animate);
-            controls.update(); // Necesario para el damping de los controles
-            renderer.render(scene, camera); // Dibujado del frame
+            controls.update(); // actualizar la inercia del movimiento
+            renderer.render(scene, camera);
         }
 
-        // --- GESTIÓN DE RESPONSIVIDAD ---
+        // arreglar el tamaño del canvas si se cambia el tamaño de la ventana
         window.addEventListener('resize', () => {
             if (!container3d) return;
-            // Recalcular aspecto y matriz de proyección
             camera.aspect = container3d.clientWidth / container3d.clientHeight;
             camera.updateProjectionMatrix();
-            // Reajustar tamaño del renderizador
             renderer.setSize(container3d.clientWidth, container3d.clientHeight);
         });
 
-        // Inicio de la ejecución
+        // arrancar la animacion de una vez
         animate();</script>
 
         <script>
