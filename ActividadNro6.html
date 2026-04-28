@@ -597,8 +597,6 @@
 
                         </div>
 
-                        <div id="cup-3d-container" style="width: 100%; height: 450px; background-color: #050505; border: 1px solid #1a1a1a; cursor: move; margin-bottom: 15px;"></div>
-                        <p style="font-size: 0.85em; text-align: center; color: #444; margin-top: 0;">// Fusión de técnicas Lathe y Sweep: El cuerpo de revolución gira 360°, el asa es una extrusión tubular.</p>
 
                     </section>
                 </div>
@@ -617,7 +615,7 @@
                 </div>
             </footer>
         </div>
-        <script type="importmap">
+        <script type="importmap"> 
         {
         "imports": {
         "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
@@ -627,45 +625,66 @@
         </script>
 
         <script id="script-seccion-1-2">
-        const slider = document.getElementById('t-slider');
-        const tVal = document.getElementById('t-val');
-        const ctxC = document.getElementById('cCirculo').getContext('2d');
-        const ctxO = document.getElementById('cOnda').getContext('2d');
+        const slider = document.getElementById('t-slider'); // Instanciar el deslizador del parametro t
+        const tVal = document.getElementById('t-val');     // Ver el valor numero de t
+        const ctxC = document.getElementById('cCirculo').getContext('2d'); // ctx para el circulo
+        const ctxO = document.getElementById('cOnda').getContext('2d');    // ctx para la onda
 
+        //dibujar la flecha
         function drawVector(ctx, fromX, fromY, toX, toY, color) {
-            const headLength = 12; 
+            const headLength = 12; // Tamaño de la flecha(la punta)
+            // calcular el angulo de la line para la orientacion de la punta
             const angle = Math.atan2(toY - fromY, toX - fromX);
+
             ctx.beginPath();
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
+
+            // dibujar la linea de la flecha
             ctx.moveTo(fromX, fromY);
             ctx.lineTo(toX, toY);
+
+            // dibujar los palos de la flecha
             ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 7), toY - headLength * Math.sin(angle - Math.PI / 7));
             ctx.moveTo(toX, toY);
             ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 7), toY - headLength * Math.sin(angle + Math.PI / 7));
+
             ctx.stroke();
         }
 
+        //funcion para actualizar cada que el slider se actualice
         function update2D() {
+            // sacar el nuevo valor del parametro t
             const t = parseFloat(slider.value);
             tVal.innerText = t.toFixed(2);
 
+            // limpiar el circulo y establecer el cenro del circulo
             ctxC.clearRect(0, 0, 400, 400);
             const cx = 200, cy = 200, r = 120;
+
+            // Dibujar circulo
             ctxC.beginPath();
             ctxC.strokeStyle = '#1a1a1a';
             ctxC.arc(cx, cy, r, 0, Math.PI * 2);
             ctxC.stroke();
+
+            // calcular el punto usando x = cos(t), y = sin(t)
             const px = cx + r * Math.cos(t);
-            const py = cy - r * Math.sin(t);
+            const py = cy - r * Math.sin(t); //no se por que pero solo funciona con negativo
+
+            // Dibujar vector de posición r(t)
             drawVector(ctxC, cx, cy, px, py, '#750202');
             ctxC.beginPath();
             ctxC.fillStyle = '#fff';
             ctxC.arc(px, py, 5, 0, Math.PI * 2);
             ctxC.fill();
 
+            //--------------
+            // Dibujar onda sinusoidal
             ctxO.clearRect(0, 0, 400, 400);
-            const originX = 20, originY = 200; 
+            const originX = 20, originY = 200; // Origen de la grafica
+
+            // Dibujar la trayectoria de la señal (en forma de seno estatico)
             ctxO.beginPath();
             ctxO.strokeStyle = '#222';
             for(let i = 0; i < 360; i++) {
@@ -675,15 +694,24 @@
                 if(i === 0) ctxO.moveTo(x, y); else ctxO.lineTo(x, y);
             }
             ctxO.stroke();
+
+            // Calcular posición actual en la onda
+            // x progresa linealmente con t, y oscila usando sin(t)
             const ox = originX + (t / 6.28) * 360;
             const oy = originY - Math.sin(t) * 80;
+
+            // Dibujar vector la progresion del vector segun t
             drawVector(ctxO, originX, originY, ox, oy, '#750202');
             ctxO.beginPath();
             ctxO.fillStyle = '#fff';
             ctxO.arc(ox, oy, 5, 0, Math.PI * 2);
             ctxO.fill();
         }
+
+        // al actualizar el slider se volvera a dibujar
         slider.addEventListener('input', update2D);
+
+        //iniciador(que se vea al iniciar la pagina sin actualizar el slider)
         update2D();
         </script>
 
@@ -691,124 +719,215 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+        // crear la escena
         const container3d = document.getElementById('pyramid-3d-container');
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x050505);
 
+        // crear camara
         const camera = new THREE.PerspectiveCamera(50, container3d.clientWidth / container3d.clientHeight, 0.1, 1000);
         camera.position.set(4, 4, 6);
 
+        // renderizar webgl
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(container3d.clientWidth, container3d.clientHeight);
         container3d.appendChild(renderer.domElement);
 
+        // establecer los controles del mause
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.enableZoom = false; 
-        controls.enablePan = false;
+        controls.enableDamping = true; // rotar con una inercia
+        controls.enableZoom = false;   //por alguna razon pierdo el enadre despues de un poco de zoom asi que lo dejare bloqeuado
+        controls.enablePan = false;    //lo mismo aqui debido a que piero el contro del eje
 
-        const size = 1.5;
-        const vertices = [];
-        const indices = [];
-        const colors = [];
+        //contruccion de la geometria
+        const size = 1.5; //tamaño del cubo
+        const vertices = []; //array para establecer los vertices(los puntitos)(VBO)
+        const indices = [];  //array para la conecion entre los vertices(IBO)
+        const colors = [];   //que color cada uno
+
+        //Centros de cara
         const faceCenters = [[0,0,size],[0,0,-size],[size,0,0],[-size,0,0],[0,size,0],[0,-size,0]];
-        const corners = [[-size,-size,size],[size,-size,size],[size,size,size],[-size,size,size],[-size,-size,-size],[size,-size,-size],[size,size,-size],[-size,size,-size]];
+        const corners = [ //definicion de las esquinas y su orientacion(si no lo hago una cara puede ser invisible)(el orden importa)
+            [-size,-size,size], [size,-size,size], [size,size,size], [-size,size,size],
+            [-size,-size,-size],[size,-size,-size],[size,size,-size],[-size,size,-size]
+        ];
 
+        //funcion para ensamblar la malla usando los 4 triangulos 
         function addTriangle(v1, v2, v3, color) {
             const startIdx = vertices.length / 3;
-            vertices.push(...v1, ...v2, ...v3);
-            indices.push(startIdx, startIdx + 1, startIdx + 2);
-            colors.push(...color, ...color, ...color);
+            vertices.push(...v1, ...v2, ...v3); // Inserción de coordenadas cartesianas (x, y, z)
+            indices.push(startIdx, startIdx + 1, startIdx + 2); // Definición de la cara
+            colors.push(...color, ...color, ...color); // Asignación de tono RGB
         }
+
+        //paleta de colores de cada cara
         const palette = [[0.46,0.01,0.01],[0.6,0.1,0.1],[0.3,0,0],[0.2,0.2,0.2]];
+        //const palette = [[0.1,0.01,0.01,0.1],[0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1]]; //por alguna razon no consigo que tome los 4 colores cada arista. lo dejare con 3 por ahora
 
-        // Frontal, Trasera, Derecha, Izquierda, Superior, Inferior
-        addTriangle(corners[0], corners[1], faceCenters[0], palette[0]); addTriangle(corners[1], corners[2], faceCenters[0], palette[1]); addTriangle(corners[2], corners[3], faceCenters[0], palette[2]); addTriangle(corners[3], corners[0], faceCenters[0], palette[3]);
-        addTriangle(corners[5], corners[4], faceCenters[1], palette[0]); addTriangle(corners[4], corners[7], faceCenters[1], palette[1]); addTriangle(corners[7], corners[6], faceCenters[1], palette[2]); addTriangle(corners[6], corners[5], faceCenters[1], palette[3]);
-        addTriangle(corners[1], corners[5], faceCenters[2], palette[0]); addTriangle(corners[5], corners[6], faceCenters[2], palette[1]); addTriangle(corners[6], corners[2], faceCenters[2], palette[2]); addTriangle(corners[2], corners[1], faceCenters[2], palette[3]);
-        addTriangle(corners[4], corners[0], faceCenters[3], palette[0]); addTriangle(corners[0], corners[3], faceCenters[3], palette[1]); addTriangle(corners[3], corners[7], faceCenters[3], palette[2]); addTriangle(corners[7], corners[4], faceCenters[3], palette[3]);
-        addTriangle(corners[3], corners[2], faceCenters[4], palette[0]); addTriangle(corners[2], corners[6], faceCenters[4], palette[1]); addTriangle(corners[6], corners[7], faceCenters[4], palette[2]); addTriangle(corners[7], corners[3], faceCenters[4], palette[3]);
-        addTriangle(corners[4], corners[5], faceCenters[5], palette[0]); addTriangle(corners[5], corners[1], faceCenters[5], palette[1]); addTriangle(corners[1], corners[0], faceCenters[5], palette[2]); addTriangle(corners[0], corners[4], faceCenters[5], palette[3]);
+        //unir la caras Frente,atras,derecha,izquierda,arriba,abajo
+        //crear 4 triangulos
+        addTriangle(corners[0], corners[1], faceCenters[0], palette[0]); 
+        addTriangle(corners[1], corners[2], faceCenters[0], palette[1]); 
+        addTriangle(corners[2], corners[3], faceCenters[0], palette[2]); 
+        addTriangle(corners[3], corners[0], faceCenters[0], palette[3]);
+        //lo mismo para cada cara
+        addTriangle(corners[5], corners[4], faceCenters[1], palette[0]); 
+        addTriangle(corners[4], corners[7], faceCenters[1], palette[1]); 
+        addTriangle(corners[7], corners[6], faceCenters[1], palette[2]); 
+        addTriangle(corners[6], corners[5], faceCenters[1], palette[3]);
+        
+        addTriangle(corners[1], corners[5], faceCenters[2], palette[0]); 
+        addTriangle(corners[5], corners[6], faceCenters[2], palette[1]); 
+        addTriangle(corners[6], corners[2], faceCenters[2], palette[2]); 
+        addTriangle(corners[2], corners[1], faceCenters[2], palette[3]);
 
+        addTriangle(corners[4], corners[0], faceCenters[3], palette[0]); 
+        addTriangle(corners[0], corners[3], faceCenters[3], palette[1]); 
+        addTriangle(corners[3], corners[7], faceCenters[3], palette[2]); 
+        addTriangle(corners[7], corners[4], faceCenters[3], palette[3]);
+
+        addTriangle(corners[3], corners[2], faceCenters[4], palette[0]); 
+        addTriangle(corners[2], corners[6], faceCenters[4], palette[1]); 
+        addTriangle(corners[6], corners[7], faceCenters[4], palette[2]); 
+        addTriangle(corners[7], corners[3], faceCenters[4], palette[3]);
+
+        addTriangle(corners[4], corners[5], faceCenters[5], palette[0]); 
+        addTriangle(corners[5], corners[1], faceCenters[5], palette[1]); 
+        addTriangle(corners[1], corners[0], faceCenters[5], palette[2]); 
+        addTriangle(corners[0], corners[4], faceCenters[5], palette[3]);
+
+        // assignacion de atributos a la gpu
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3));
         geometry.setIndex(indices);
-        geometry.computeVertexNormals();
+        geometry.computeVertexNormals(); //vectores perpenticulares de luz
 
-        const material = new THREE.MeshPhongMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide });
+        //material y la malla
+        const material = new THREE.MeshPhongMaterial({ 
+            vertexColors: true, 
+            flatShading: true, 
+            side: THREE.DoubleSide 
+        });
         const cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
 
-        const wireframe = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 }));
+        // --- WIREFRAME (ESTRUCTURA DE ALAMBRE) ---
+        // Visualiza las aristas para resaltar la unión de polígonos
+        const wireframe = new THREE.LineSegments(
+            new THREE.EdgesGeometry(geometry), 
+            new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 })
+        );
         scene.add(wireframe);
 
+        // --- ILUMINACIÓN ---
         scene.add(new THREE.DirectionalLight(0xffffff, 1.2).translateY(5).translateX(5));
         scene.add(new THREE.AmbientLight(0x404040, 1.5));
 
+        // --- BUCLE DE ANIMACIÓN ---
         function animate() {
             requestAnimationFrame(animate);
-            controls.update();
+            controls.update(); // Actualiza la física de la cámara
             renderer.render(scene, camera);
         }
+
+        // --- RESPONSIVIDAD ---
         window.addEventListener('resize', () => {
             camera.aspect = container3d.clientWidth / container3d.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(container3d.clientWidth, container3d.clientHeight);
         });
+
         animate();
         </script>
 
-        <script type="module" id="script-seccion-2-4">
+        <script type="module" id="script-seccion-2-4">// --- IMPORTACIÓN DE MÓDULOS ---
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+        // --- CONFIGURACIÓN DEL ENTORNO (ESCENA) ---
         const container3d = document.getElementById('cup-3d-container'); 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x050505);
+        scene.background = new THREE.Color(0x050505); // Fondo oscuro ThinkPad
 
+        // --- CÁMARA: Proyección de Perspectiva ---
+        // FOV: 50°, Aspect Ratio basado en contenedor, Near: 0.1, Far: 1000
         const camera = new THREE.PerspectiveCamera(50, container3d.clientWidth / container3d.clientHeight, 0.1, 1000);
-        camera.position.set(5, 5, 8);
+        camera.position.set(5, 5, 8); // Posicionamiento espacial inicial
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        // --- RENDERIZADOR: Motor WebGL ---
+        const renderer = new THREE.WebGLRenderer({ antialias: true }); // Suavizado de bordes
         renderer.setSize(container3d.clientWidth, container3d.clientHeight);
-        container3d.appendChild(renderer.domElement);
+        container3d.appendChild(renderer.domElement); // Inserción del Canvas en el DOM
 
+        // --- INTERACCIÓN: Control de Órbita ---
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.enableZoom = false; 
-        controls.enablePan = false;
+        controls.enableDamping = true; // Rotación inercial (suave)
+        controls.enableZoom = false;   // Restricción para mantener consistencia visual
+        controls.enablePan = false;    // Restricción de desplazamiento lateral
 
+        // --- MODELADO PROCEDIMENTAL I: REVOLUCIÓN (LATHE) ---
+        // Definición del perfil 2D (silueta lateral de la taza)
         const points = [];
-        points.push(new THREE.Vector2(0, 0));       
-        points.push(new THREE.Vector2(1.2, 0));     
-        points.push(new THREE.Vector2(1.5, 0.2));   
-        points.push(new THREE.Vector2(1.5, 2.5));   
-        points.push(new THREE.Vector2(1.6, 2.8));   
+        points.push(new THREE.Vector2(0, 0));       // Base central
+        points.push(new THREE.Vector2(1.2, 0));     // Radio de base
+        points.push(new THREE.Vector2(1.5, 0.2));   // Curva inferior
+        points.push(new THREE.Vector2(1.5, 2.5));   // Cuerpo cilíndrico
+        points.push(new THREE.Vector2(1.6, 2.8));   // Labio superior
 
+        // Generación de malla por rotación (32 segmentos para suavizado C1)
         const latheGeometry = new THREE.LatheGeometry(points, 32);
-        const materialTaza = new THREE.MeshPhongMaterial({ color: 0x750202, flatShading: false, side: THREE.DoubleSide, shininess: 80 });
-        scene.add(new THREE.Mesh(latheGeometry, materialTaza));
+        const materialTaza = new THREE.MeshPhongMaterial({ 
+            color: 0x750202,      // Rojo ThinkPad
+            flatShading: false,   // Sombreado suave (Phong)
+            side: THREE.DoubleSide, 
+            shininess: 80         // Reflejo especular
+        });
+        const cupBody = new THREE.Mesh(latheGeometry, materialTaza);
+        scene.add(cupBody);
 
-        const handlePath = new THREE.CubicBezierCurve3(new THREE.Vector3(1.4, 2.2, 0), new THREE.Vector3(2.5, 2.2, 0), new THREE.Vector3(2.5, 0.5, 0), new THREE.Vector3(1.2, 0.5, 0));
-        scene.add(new THREE.Mesh(new THREE.TubeGeometry(handlePath, 20, 0.15, 8, false), materialTaza));
+        // --- MODELADO PROCEDIMENTAL II: BARRIDO (SWEEP/TUBE) ---
+        // Trayectoria del asa mediante Curva de Bézier Cúbica
+        const handlePath = new THREE.CubicBezierCurve3(
+            new THREE.Vector3(1.4, 2.2, 0),  // Punto inicial
+            new THREE.Vector3(2.5, 2.2, 0),  // Control 1
+            new THREE.Vector3(2.5, 0.5, 0),  // Control 2
+            new THREE.Vector3(1.2, 0.5, 0)   // Punto final
+        );
 
-        scene.add(new THREE.DirectionalLight(0xffffff, 1.2).translateY(10).translateX(5));
+        // Generación de geometría tubular a lo largo de la trayectoria
+        const tubeGeometry = new THREE.TubeGeometry(handlePath, 20, 0.15, 8, false);
+        const cupHandle = new THREE.Mesh(tubeGeometry, materialTaza);
+        scene.add(cupHandle);
+
+        // --- ILUMINACIÓN: Sistema de Luces ---
+        // Luz Direccional (simula una fuente puntual distante para sombras/brillos)
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(5, 10, 5);
+        scene.add(dirLight);
+
+        // Luz Ambiental (iluminación base para evitar zonas de negro absoluto)
         scene.add(new THREE.AmbientLight(0x404040, 1.5));
 
+        // --- BUCLE DE ANIMACIÓN (RENDER LOOP) ---
         function animate() {
             requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
+            controls.update(); // Necesario para el damping de los controles
+            renderer.render(scene, camera); // Dibujado del frame
         }
+
+        // --- GESTIÓN DE RESPONSIVIDAD ---
         window.addEventListener('resize', () => {
             if (!container3d) return;
+            // Recalcular aspecto y matriz de proyección
             camera.aspect = container3d.clientWidth / container3d.clientHeight;
             camera.updateProjectionMatrix();
+            // Reajustar tamaño del renderizador
             renderer.setSize(container3d.clientWidth, container3d.clientHeight);
         });
-        animate();
-        </script>
+
+        // Inicio de la ejecución
+        animate();</script>
 
         <script>
         window.MathJax = {
