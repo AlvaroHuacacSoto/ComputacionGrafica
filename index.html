@@ -15,7 +15,7 @@
       line-height: 1.5;
       display: flex;
       height: 100vh;
-      overflow: hidden; /* Evita el scroll en el body, se delega a los paneles */
+      overflow: hidden;
     }
 
     /* Barra Lateral (Explorador) */
@@ -29,27 +29,30 @@
       padding: 20px;
       overflow-y: auto;
       box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+      z-index: 10;
     }
 
     /* Área de Visualización Principal */
     .main-content {
       flex: 1;
-      background-color: #000;
+      background-color: #000; /* Fondo negro profundo */
       display: flex;
+      position: relative;
     }
 
     #viewer {
       width: 100%;
       height: 100%;
       border: none;
-      background-color: #fff; /* Fondo blanco por defecto para los HTML renderizados, ajustable según necesidad */
+      /* Fondo oscuro para evitar el destello blanco antes de cargar contenido */
+      background-color: #0a0a0a; 
     }
 
     /* Breadcrumb (Navegación de ruta) */
     .breadcrumb {
       margin-bottom: 20px;
       font-size: 0.9em;
-      border-left: 3px solid #750202;
+      border-left: 3px solid #750202; /* Rojo ThinkPad */
       padding-left: 15px;
       color: #888;
     }
@@ -156,7 +159,12 @@
   </div>
 
   <div class="main-content">
-    <iframe id="viewer" name="viewer" src="about:blank" title="Visor de archivos"></iframe>
+    <iframe 
+      id="viewer" 
+      name="viewer" 
+      srcdoc="<html><body style='background-color:#0a0a0a; color:#333; display:flex; justify-content:center; align-items:center; height:90vh; margin:0; font-family:monospace;'>[ SELECCIONE UN ARCHIVO PARA RENDERIZAR ]</body></html>"
+      title="Visor de archivos">
+    </iframe>
   </div>
 
   <script>
@@ -258,7 +266,7 @@
       });
 
       data.forEach(item => {
-        if (item.name === 'index.html') return;
+        if (item.name === 'index.html' || item.name === 'README.md') return;
         const div = document.createElement('div');
         div.className = 'item';
 
@@ -268,7 +276,6 @@
           div.innerHTML = `${icons.dir}<span>${item.name}</span>`;
         } else {
           const rawUrl = `https://${USER}.github.io/${REPO}/${item.path}`;
-          // CAMBIO PRINCIPAL: target="viewer" envía el enlace al iframe
           div.innerHTML = `<a class="file" href="${rawUrl}" target="viewer">${icons.file}${item.name}</a>`;
         }
         explorer.append(div);
