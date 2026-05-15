@@ -152,8 +152,8 @@
         <div class="controls-guide">
           <div class="control-item"><span class="key">I</span> <span class="key">K</span> Rotar X</div>
           <div class="control-item"><span class="key">J</span> <span class="key">L</span> Rotar Y</div>
-          <div class="control-item"><span class="key">U</span> Acercar</div>
-          <div class="control-item"><span class="key">O</span> Alejar</div>
+          <div class="control-item"><span class="key">O</span> Acercar</div>
+          <div class="control-item"><span class="key">U</span> Alejar</div>
         </div>
       </div>
 
@@ -210,8 +210,8 @@
         if (keysCubo['l']) angleY += speed; 
 
         // Zoom con U y O
-        if (keysCubo['u']) cameraDistance -= zoomSpeed; 
-        if (keysCubo['o']) cameraDistance += zoomSpeed; 
+        if (keysCubo['o']) cameraDistance -= zoomSpeed; 
+        if (keysCubo['u']) cameraDistance += zoomSpeed; 
 
         // reestriccion para evitar que la camara se acerque demasiado
         cameraDistance = Math.max(1.5, Math.min(10, cameraDistance));
