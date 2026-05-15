@@ -124,20 +124,7 @@
     </style>
   </head>
   <body>
-
     <div class="main-container">
-
-      <div class="card">
-        <h2>Cubo 2D</h2>
-        <canvas id="canvasCubo" width="400" height="400"></canvas>
-
-        <div class="controls-guide">
-          <div class="control-item"><span class="key">I</span> <span class="key">K</span> Rotar X</div>
-          <div class="control-item"><span class="key">J</span> <span class="key">L</span> Rotar Y</div>
-          <div class="control-item"><span class="key">U</span> Acercar</div>
-          <div class="control-item"><span class="key">O</span> Alejar</div>
-        </div>
-      </div>
 
       <div class="card">
         <h2>TESERACTO</h2>
@@ -158,6 +145,18 @@
           <button class="btn-mini" id="btnAdelantar" title="Normal">▶</button>
         </div>
       </div>
+      <div class="card">
+        <h2>Cubo 2D</h2>
+        <canvas id="canvasCubo" width="400" height="400"></canvas>
+
+        <div class="controls-guide">
+          <div class="control-item"><span class="key">I</span> <span class="key">K</span> Rotar X</div>
+          <div class="control-item"><span class="key">J</span> <span class="key">L</span> Rotar Y</div>
+          <div class="control-item"><span class="key">U</span> Acercar</div>
+          <div class="control-item"><span class="key">O</span> Alejar</div>
+        </div>
+      </div>
+
 
     </div>   
 
@@ -241,7 +240,7 @@
           const xProj = (x / zDepth) * fov + CX;
           const yProj = (y / zDepth) * fov + CY;
 
-          
+
           //Las nuevas coordenadas se guardan en projectedVertices
           projectedVertices.push([xProj, yProj]);
         }
@@ -319,7 +318,7 @@
     // creacion de material de las aristas
     const lineGeometry = new THREE.BufferGeometry(); //usamos directamente los graphics pipelines ara mayor velocidad
     const linePos = new Float32Array(edges.length * 2 * 3); // esta forma de guardar la memoria es la mejor para estos casos por la presicion de los calculos(esta memoria siempre tendra 32 espacion listos para guardar estos puntos)
-    
+
     lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00b4d8, linewidth: 2 });
     const lineSegments = new THREE.LineSegments(lineGeometry, lineMaterial);
@@ -356,7 +355,7 @@
     }
     // al terminar escribimos los indices en el buffer de geometrias asignados
     meshGeometry.setIndex(indices);
-    
+
     // creamos las caras del tesectao (con transparencia para que se pueda ver su pliegue sobre si mismo)
     const meshMaterial = new THREE.MeshBasicMaterial({
       color: 0x00b4d8,
@@ -397,7 +396,7 @@
       if (keys['q']) radius += 0.1;
       if (keys['e']) radius -= 0.1;
 
-    // para evitar que la camara se pierda. cambiaremos la rotacion para que apunte hacia el cubo sin importar su posicion
+      // para evitar que la camara se pierda. cambiaremos la rotacion para que apunte hacia el cubo sin importar su posicion
       phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi));
       radius = Math.max(1.5, Math.min(10, radius));
       camera.position.set(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
