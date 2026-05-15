@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exposición: Proyecciones Geométricas</title>
+    <style>
+    /* Estética Ultra-Minimalista */
+    body {
+      background-color: #fcfcfc;
+      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding-top: 20px; /* Pequeño margen superior en lugar del header */
+    }
+
+    .main-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      padding: 20px;
+      max-width: 1100px;
+    }
+
+    /* Tarjetas */
+    .card {
+      background: #ffffff;
+      border: 1px solid #eaeaea;
+      border-radius: 12px;
+      padding: 24px;
+      width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: #00b4d8;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: #0a192f;
+      width: 100%;
+      text-align: left;
+      font-weight: 600;
+      border-left: 4px solid #00b4d8;
+      padding-left: 12px;
+    }
+
+    canvas, #containerTeseracto {
+      background: #fdfdfd;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+    }
+
+    .controls-guide {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #f5f5f5;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .key {
+      background: #fdfdfd;
+      border: 1px solid #d1d1d1;
+      border-bottom: 3px solid #c1c1c1;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: #1a1a1a;
+      font-size: 0.85rem;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .btn-mini {
+      background: white;
+      border: 1px solid #eaeaea;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      color: #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .btn-mini:hover {
+      background: #00b4d8;
+      color: white;
+      border-color: #00b4d8;
+      transform: scale(1.1);
+    }
+    </style>
+  </head>
+  <body>
+
+    <div class="main-container">
+
+      <div class="card">
+        <h2>Cubo 2D</h2>
+        <canvas id="canvasCubo" width="400" height="400"></canvas>
+
+        <div class="controls-guide">
+          <div class="control-item"><span class="key">I</span> <span class="key">K</span> Rotar X</div>
+          <div class="control-item"><span class="key">J</span> <span class="key">L</span> Rotar Y</div>
+          <div class="control-item"><span class="key">U</span> Acercar</div>
+          <div class="control-item"><span class="key">O</span> Alejar</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>TESERACTO</h2>
+        <div id="containerTeseracto" style="width: 400px; height: 400px; overflow: hidden;"></div>
+
+        <div class="controls-guide">
+          <div class="control-item"><span class="key">W</span> <span class="key">S</span> Vertical</div>
+          <div class="control-item"><span class="key">A</span> <span class="key">D</span> Horizontal</div>
+          <div class="control-item"><span class="key">E</span> Acercar</div>
+          <div class="control-item"><span class="key">Q</span> Alejar</div>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn-mini" id="btnRetroceder" title="Invertir">◀</button>
+          <button class="btn-mini" id="btnPlayPausa" title="Pausa/Play">
+            <span id="txtBtn">⏸</span>
+          </button>
+          <button class="btn-mini" id="btnAdelantar" title="Normal">▶</button>
+        </div>
+      </div>
+
+    </div>   
+
+    <script>
+    (function() {
+      //creacuin de canva
+      const canvas = document.getElementById('canvasCubo');
+      const ctx = canvas.getContext('2d');
+      const CX = canvas.width / 2;
+      const CY = canvas.height / 2;
+
+      // asignacion del cubo (las airstas)
+      const vertices = [
+        [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+        [-1, -1,  1], [1, -1,  1], [1, 1,  1], [-1, 1,  1] 
+      ];
+
+      // asignacion de la caras del cubo
+      const edges = [
+        [0, 1], [1, 2], [2, 3], [3, 0],
+        [4, 5], [5, 6], [6, 7], [7, 4],
+        [0, 4], [1, 5], [2, 6], [3, 7] 
+      ];
+
+      //variables de inicializacion
+      let angleX = 0;
+      let angleY = 0;
+      let cameraDistance = 3; 
+
+      // Control del cubo
+      // lectura de teclas a leer
+      const keysCubo = {};
+      window.addEventListener('keydown', (e) => {
+        const key = e.key.toLowerCase();
+        keysCubo[key] = true;
+      });
+      window.addEventListener('keyup', (e) => keysCubo[e.key.toLowerCase()] = false);
+
+      function render() {
+        //limpiar antes de volver a imprimir
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        //variables de movimiento (realmente no se "mueve", solo simula movimiento usando la perspectiva)
+        const speed = 0.03;
+        const zoomSpeed = 0.05;
+
+        // Rotación con IJKL
+        if (keysCubo['i']) angleX += speed; 
+        if (keysCubo['k']) angleX -= speed; 
+        if (keysCubo['j']) angleY -= speed; 
+        if (keysCubo['l']) angleY += speed; 
+
+        // Zoom con U y O
+        if (keysCubo['u']) cameraDistance -= zoomSpeed; 
+        if (keysCubo['o']) cameraDistance += zoomSpeed; 
+
+        // reestriccion para evitar que la camara se acerque demasiado
+        cameraDistance = Math.max(1.5, Math.min(10, cameraDistance));
+
+        const projectedVertices = [];
+
+        //calcular los puntos de los vertices 
+        // usamos yz para rotar sobre el "eje x"(arriba abajo)
+        // luego mezclamos z,x para la rotacion del eje Y
+        for (let v of vertices) {
+          let x = v[0], y = v[1], z = v[2];
+
+          let tempY = y * Math.cos(angleX) - z * Math.sin(angleX);
+          let tempZ = y * Math.sin(angleX) + z * Math.cos(angleX);
+          y = tempY; z = tempZ;
+
+          let tempX = x * Math.cos(angleY) + z * Math.sin(angleY);
+          z = -x * Math.sin(angleY) + z * Math.cos(angleY);
+          x = tempX;
+
+          //dividir los ejes con la profundidad de la camara
+          const zDepth = z + cameraDistance; 
+          //campo de vision de la camara
+          const fov = 200; 
+
+          const xProj = (x / zDepth) * fov + CX;
+          const yProj = (y / zDepth) * fov + CY;
+
+          
+          //Las nuevas coordenadas se guardan en projectedVertices
+          projectedVertices.push([xProj, yProj]);
+        }
+
+        // Establecer estilo (color y grsor de line)
+        ctx.strokeStyle = '#00b4d8';
+        ctx.lineWidth = 2.5; 
+        ctx.beginPath();
+
+        // usamos los vertices creados para mover la linea y dibujar segun estos
+        for (let edge of edges) {
+          const p1 = projectedVertices[edge[0]];
+          const p2 = projectedVertices[edge[1]];
+          ctx.moveTo(p1[0], p1[1]);
+          ctx.lineTo(p2[0], p2[1]);
+        }
+        ctx.stroke();
+
+        //extra cear puntos(circulos em los vertices)
+        for (let p of projectedVertices) {
+          ctx.beginPath();
+          ctx.arc(p[0], p[1], 4.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#0a192f'; 
+          ctx.fill();
+
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#00b4d8'; 
+          ctx.stroke();
+        }
+        //animar antes de cada frame
+        requestAnimationFrame(render);
+      }
+
+      render();
+    })(); 
+    </script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script type="module">
+
+    import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+
+    // construccion de el esccenario
+    const container = document.getElementById('containerTeseracto');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf8f9fa); 
+
+    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(400, 400);
+    container.appendChild(renderer.domElement);
+
+    // creacion de las aristas del teseracto
+    const points4D = [];
+    for (let i = 0; i < 16; i++) {
+      points4D.push({
+        x: (i & 1) ? 1 : -1,
+        y: (i & 2) ? 1 : -1,
+        z: (i & 4) ? 1 : -1,
+        w: (i & 8) ? 1 : -1 //nuevo eje agregado
+      });
+    }
+    // asignacion de la puntos(aristas) para crear caras(cuadrados planos)
+    const edges = [];
+    for (let i = 0; i < 16; i++) {
+      for (let j = i + 1; j < 16; j++) {
+        let diff = i ^ j;
+        if (diff === 1 || diff === 2 || diff === 4 || diff === 8) {
+          edges.push([i, j]);
+        }
+      }
+    }
+
+    // creacion de material de las aristas
+    const lineGeometry = new THREE.BufferGeometry(); //usamos directamente los graphics pipelines ara mayor velocidad
+    const linePos = new Float32Array(edges.length * 2 * 3); // esta forma de guardar la memoria es la mejor para estos casos por la presicion de los calculos(esta memoria siempre tendra 32 espacion listos para guardar estos puntos)
+    
+    lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00b4d8, linewidth: 2 });
+    const lineSegments = new THREE.LineSegments(lineGeometry, lineMaterial);
+    scene.add(lineSegments);
+
+    // creacion de las 16 esfereas
+    const sphereGeom = new THREE.SphereGeometry(0.04, 16, 16);
+    const sphereMat = new THREE.MeshBasicMaterial({ color: 0x0a192f });
+    const spheres = [];
+    // repetir la esfera 16 veces para cada punto de las aristas
+    for(let i = 0; i < 16; i++) {
+      const sphere = new THREE.Mesh(sphereGeom, sphereMat);
+      scene.add(sphere);
+      spheres.push(sphere);
+    }
+
+    // usamos el Buffer de memoriaGeometry para reescribir las areas asignadas anteriormente
+    const meshGeometry = new THREE.BufferGeometry();
+    const vertices3D = new Float32Array(16 * 3);
+    meshGeometry.setAttribute('position', new THREE.BufferAttribute(vertices3D, 3));
+
+    const indices = [];//calculos de los puntos segun los diferententes dimenciones
+    for (let i = 0; i < 16; i++) {
+      for (let j = i + 1; j < 16; j++) {
+        for (let k = j + 1; k < 16; k++) {
+          let d1 = i ^ j, d2 = j ^ k, d3 = k ^ i;
+          if (Math.hypot(d1 === 1 || d1 === 2 || d1 === 4 || d1 === 8) && 
+            Math.hypot(d2 === 1 || d2 === 2 || d2 === 4 || d2 === 8) &&
+            Math.hypot(d3 === 1 || d3 === 2 || d3 === 4 || d3 === 8)) {
+            indices.push(i, j, k);
+          }
+        }
+      }
+    }
+    // al terminar escribimos los indices en el buffer de geometrias asignados
+    meshGeometry.setIndex(indices);
+    
+    // creamos las caras del tesectao (con transparencia para que se pueda ver su pliegue sobre si mismo)
+    const meshMaterial = new THREE.MeshBasicMaterial({
+      color: 0x00b4d8,
+      transparent: true,
+      opacity: 0.1,
+      side: THREE.DoubleSide
+    });
+    const mesh = new THREE.Mesh(meshGeometry, meshMaterial);
+    scene.add(mesh);
+
+    //variables de los controles(no los del teclado, son los controles de rotacion del 4d) los que estan como atras/pausa/adelante
+    let rotation4D = 0;
+    let isPlaying = true;
+    let timeDirection = 1;
+    const timeSpeed = 0.015;
+
+    let radius = 4, theta = 0, phi = Math.PI / 2;
+    const keys = {};
+
+    //controles de "tiempo (4d)"
+    window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
+    window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+    document.getElementById('btnPlayPausa').onclick = () => {
+      isPlaying = !isPlaying;
+      document.getElementById('iconPlay').style.display = isPlaying ? 'none' : 'block';
+      document.getElementById('iconPause').style.display = isPlaying ? 'block' : 'none';
+    };
+    document.getElementById('btnRetroceder').onclick = () => timeDirection = -1;
+    document.getElementById('btnAdelantar').onclick = () => timeDirection = 1;
+
+    // movimiento de la camara
+    function updateCamera() {
+      if (keys['w']) phi -= 0.04;
+      if (keys['s']) phi += 0.04;
+      if (keys['a']) theta -= 0.04;
+      if (keys['d']) theta += 0.04;
+      if (keys['q']) radius += 0.1;
+      if (keys['e']) radius -= 0.1;
+
+    // para evitar que la camara se pierda. cambiaremos la rotacion para que apunte hacia el cubo sin importar su posicion
+      phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi));
+      radius = Math.max(1.5, Math.min(10, radius));
+      camera.position.set(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
+      camera.lookAt(0, 0, 0);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);//animar antes de cada frame
+      updateCamera();//actualizar camara
+      if (isPlaying) rotation4D += (timeSpeed * timeDirection);//simulando el control del tiempo con los controles en play
+      //reduccion dimencional de 4D a 3D
+      const projectedPoints3D = points4D.map(p => {
+        let x = p.x, y = p.y, z = p.z, w = p.w;
+        //rotacion del plano xw 
+        let nx = x * Math.cos(rotation4D) - w * Math.sin(rotation4D);
+        let nw = x * Math.sin(rotation4D) + w * Math.cos(rotation4D);
+        // division de la perspectiva 4d>3d
+        const wScale = 1 / (2.5 - nw);
+        return { x: nx * wScale, y: y * wScale, z: z * wScale };
+      });
+
+      // actualizacion de BufferGeometry para cada punto xyz
+      const posAttr = meshGeometry.attributes.position;
+      const lineAttr = lineGeometry.attributes.position;
+      let lIdx = 0;
+
+      projectedPoints3D.forEach((p, i) => {
+        posAttr.setXYZ(i, p.x, p.y, p.z);
+        spheres[i].position.set(p.x, p.y, p.z);
+      });
+
+      edges.forEach(edge => {
+        const p1 = projectedPoints3D[edge[0]], p2 = projectedPoints3D[edge[1]];
+        lineAttr.setXYZ(lIdx++, p1.x, p1.y, p1.z);
+        lineAttr.setXYZ(lIdx++, p2.x, p2.y, p2.z);
+      });
+
+      posAttr.needsUpdate = true;//hacemos que el buffer de geometria sea dinamico
+      lineAttr.needsUpdate = true;
+      renderer.render(scene, camera);//invocar el renderizado
+    }
+    animate();
+    </script>
+  </body>
+</html>
